@@ -139,6 +139,7 @@ Example table: `submissions`
 Recommended `status` values:
 
 - `pending_classification`
+- `classifying`
 - `classified`
 - `needs_manual_review`
 - `classification_failed`
@@ -160,16 +161,23 @@ Example table: `classification_results`
 |---|---|---|
 | `id` | UUID | Primary key |
 | `submission_id` | foreign key | References `submissions.id` |
+| `job_id` | UUID/string nullable | Job/run correlation |
+| `classification_type` | varchar | Must be `submission_review` |
 | `category` | varchar | Normalized classification category |
 | `review_decision` | varchar | Operational decision |
+| `score` | decimal/integer nullable | Rule-based score where used |
 | `confidence_score` | decimal nullable | Optional score if available |
 | `reason` | text | Human-readable explanation |
+| `reasons` | JSONB nullable | Normalized reason list |
 | `provider` | varchar | Example: `rule_based`, `model_provider` |
 | `classifier_version` | varchar | Version of rules/model used |
 | `schema_version` | varchar | Version of result schema |
 | `raw_response` | JSONB nullable | Optional sanitized provider response |
 | `is_fallback` | boolean | Whether fallback classification was used |
+| `fallback_reason` | varchar nullable | Why fallback was used |
 | `error_code` | varchar nullable | Error identifier if classification failed |
+| `classified_at` | timestamp | Time classifier produced result |
+| `classification_duration_ms` | integer nullable | Duration where available |
 | `created_at` | timestamp | Result creation time |
 
 Recommended `category` values from ADR-005:
@@ -188,6 +196,13 @@ Recommended `review_decision` values from ADR-005:
 - `passes_automated_checks`
 - `fails_automated_checks`
 - `needs_manual_review`
+
+Classification result constraints:
+
+- `classification_type` is required and must equal `submission_review`.
+- `score`, if present, must be between `0` and `1`.
+- `reasons`, if present, must contain safe submission-review explanations only.
+- `classified_at` is required for successful classifier responses.
 
 The category explains the reason for the classification. The review decision explains the operational next step.
 
@@ -319,10 +334,12 @@ Recommended database and model-level constraints:
 - `photo_size_bytes` is required.
 - `status` is required.
 - `created_at` and `updated_at` are required.
-- `age` should have a check constraint, for example `age >= 0 AND age <= 120`.
-- `photo_size_bytes` should be positive.
+- `age` must have a check constraint such as `age >= 0 AND age <= 120`.
+- `photo_size_bytes` must be positive and no larger than 5 MB.
+- Uploaded photos must be JPEG, PNG, or WebP.
+- Uploaded photo dimensions must be validated from 300x300 through 5000x5000 pixels inclusive at the application level.
 - `status` should be limited to known choices.
-- `description` should have a maximum length enforced at the application level.
+- `description` must have a maximum length of 1,000 characters enforced at the application level.
 
 ### Classification result constraints
 

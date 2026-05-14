@@ -228,7 +228,7 @@ description=Optional user-provided description.
   "country_of_origin": "Germany",
   "description": "Optional user-provided description.",
   "photo": {
-    "object_key": "submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
+    "object_key": "uploads/submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
     "original_filename": "profile.jpg",
     "content_type": "image/jpeg",
     "size_bytes": 348221
@@ -336,7 +336,7 @@ Authorization: Bearer <access_token>
   "country_of_origin": "Germany",
   "description": "Optional user-provided description.",
   "photo": {
-    "object_key": "submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
+    "object_key": "uploads/submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
     "original_filename": "profile.jpg",
     "content_type": "image/jpeg",
     "size_bytes": 348221
@@ -422,7 +422,7 @@ Authorization: Bearer <admin_access_token>
       "gender": "non_binary",
       "country_of_origin": "Germany",
       "photo": {
-        "object_key": "submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
+        "object_key": "uploads/submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
         "content_type": "image/jpeg",
         "size_bytes": 348221
       },
@@ -474,7 +474,7 @@ Authorization: Bearer <admin_access_token>
   "country_of_origin": "Germany",
   "description": "Optional user-provided description.",
   "photo": {
-    "object_key": "submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
+    "object_key": "uploads/submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
     "original_filename": "profile.jpg",
     "content_type": "image/jpeg",
     "size_bytes": 348221
@@ -733,25 +733,25 @@ All API errors should use a consistent JSON format.
 | Field | Rule |
 |---|---|
 | `name` | Required, trimmed, max length configured by model |
-| `age` | Required integer, recommended range `0` to `120` |
+| `age` | Required integer from `0` through `120` inclusive |
 | `place_of_living` | Required, trimmed, max length configured by model |
 | `gender` | Required user-submitted value; never inferred from photo |
 | `country_of_origin` | Required, trimmed, max length configured by model |
-| `description` | Optional, max length configured by model, for example 1000 characters |
+| `description` | Optional, max length 1,000 characters |
 
 Gender is stored because the assessment requires it as metadata and admin filter criteria. The platform must not infer gender from the photo and must not use gender to score whether a submission should pass review.
 
 ### Photo validation
 
-Recommended first-version validation:
+Required first-version validation:
 
 - File is required.
 - File size must be greater than zero.
-- File size must be below a configured maximum, for example 5 MB.
+- File size must be no larger than 5 MB.
 - Allowed MIME types: `image/jpeg`, `image/png`, `image/webp`.
 - File signature should match the declared MIME type.
 - Image should be parseable by the configured image library.
-- Image dimensions should be within configured minimum and maximum limits.
+- Image dimensions must be from 300x300 through 5000x5000 pixels inclusive.
 - The system should reject files that are clearly not images.
 
 ### Classification response validation

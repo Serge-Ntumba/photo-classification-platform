@@ -144,13 +144,13 @@ docker build -t ghcr.io/<owner>/<repo>/classifier:${GITHUB_SHA} -f services/clas
 When Kubernetes manifests exist, CI can validate them without a live cluster using dry-run or schema tools. With cluster credentials configured, the deployment flow should:
 
 ```bash
-kubectl apply -f k8s/namespace.yaml
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/services/
-kubectl apply -f k8s/jobs/migrate.yaml
+kubectl apply -f infra/k8s/namespace.yaml
+kubectl apply -f infra/k8s/configmap.yaml
+kubectl apply -f infra/k8s/services/
+kubectl apply -f infra/k8s/jobs/migrate.yaml
 kubectl wait --for=condition=complete job/django-migrate --timeout=120s
-kubectl apply -f k8s/deployments/
-kubectl apply -f k8s/ingress.yaml
+kubectl apply -f infra/k8s/deployments/
+kubectl apply -f infra/k8s/ingress.yaml
 kubectl rollout status deployment/web
 kubectl rollout status deployment/worker
 kubectl rollout status deployment/classifier

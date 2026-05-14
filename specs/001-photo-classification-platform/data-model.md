@@ -87,10 +87,12 @@ classification_failed
 ### Submission Constraints
 
 - `user_id`, `name`, `age`, `place_of_living`, `gender`, `country_of_origin`, `photo_object_key`, `photo_content_type`, `photo_size_bytes`, `status`, `created_at`, and `updated_at` are required.
-- `age` should be constrained to a configured range, recommended `0 <= age <= 120`.
-- `photo_size_bytes` must be positive and under the configured maximum.
+- `age` must be constrained to `0 <= age <= 120`.
+- `photo_size_bytes` must be positive and no larger than 5 MB.
+- Uploaded photo MIME type must be JPEG, PNG, or WebP.
+- Uploaded photo dimensions must be from 300x300 through 5000x5000 pixels inclusive.
 - `status` must be limited to known values.
-- `description` must be length-limited at the application level.
+- `description` must be limited to 1,000 characters at the application level.
 - The database stores photo references, not photo bytes.
 - Permanent public photo URLs must not be stored.
 
@@ -176,7 +178,7 @@ needs_manual_review
 - `category` must be a known category.
 - `review_decision` must be a known decision.
 - `provider`, `classifier_version`, `schema_version`, and `created_at` are required.
-- `score` or `confidence_score`, if present, must be bounded to the configured range.
+- `score` or `confidence_score`, if present, must be between `0` and `1`.
 - Responses containing sensitive inferred traits must be rejected and not stored as trusted results.
 - `raw_response`, if used later, must be sanitized and must not contain secrets, signed URLs, raw prompts, unnecessary personal data, or sensitive inferred traits.
 

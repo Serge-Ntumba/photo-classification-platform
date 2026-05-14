@@ -53,6 +53,7 @@ As a registered user, I can submit one photo with required metadata so that the 
 1. Given an authenticated user and valid photo plus required metadata, when the user creates a submission, then the platform stores metadata, stores the photo in object storage, records a private object reference, and returns the created submission.
 2. Given a submission with missing required metadata, when creation is attempted, then the API returns validation errors and does not accept the submission as valid.
 3. Given a missing, empty, unsupported, oversized, unreadable, or corrupted photo, when creation or classification occurs, then the platform rejects the input or produces a safe review/failure state.
+4. Given object storage upload succeeds but RabbitMQ job publishing fails, when creation cannot queue classification, then the platform does not leave the submission in `pending_classification`; it either rolls back the submission and cleans up the uploaded object or stores a `classification_failed` retryable operational state.
 
 ---
 
@@ -112,8 +113,8 @@ As a platform operator, I need classification to describe the submission review 
 - Regular users attempt to access another user's submission.
 - Public registration includes `is_staff` or `is_superuser` fields.
 - Required metadata is missing or invalid.
-- Age is outside the configured range.
-- Optional description exceeds configured length.
+- Age is outside 0 through 120 inclusive.
+- Optional description exceeds 1,000 characters.
 - Uploaded file is empty, oversized, unsupported, spoofed, corrupted, or unreadable.
 - Object storage upload succeeds but RabbitMQ publish fails.
 - RabbitMQ delivers duplicate jobs.
@@ -160,6 +161,12 @@ As a platform operator, I need classification to describe the submission review 
 - **FR-032**: Docker Compose MUST be able to run the local system boundaries: web, worker, classifier, PostgreSQL, RabbitMQ, MinIO, and Nginx where used.
 - **FR-033**: The repository MUST include a credible Kubernetes deployment strategy.
 - **FR-034**: The repository MUST include testing and CI guidance that covers API, classifier, worker, contract, database, safety, Docker, and deployment checks.
+- **FR-035**: Submission `age` MUST be an integer from 0 through 120 inclusive.
+- **FR-036**: Optional `description` MUST be limited to 1,000 characters.
+- **FR-037**: Uploaded photos MUST be JPEG, PNG, or WebP.
+- **FR-038**: Uploaded photos MUST be non-empty and no larger than 5 MB.
+- **FR-039**: Uploaded photos MUST have dimensions from 300x300 through 5000x5000 pixels inclusive.
+- **FR-040**: If object storage succeeds but RabbitMQ/Celery job publishing fails, the platform MUST NOT leave the submission in `pending_classification`; it MUST either roll back the submission and clean up the uploaded object or persist a `classification_failed` state with retryable operational context.
 
 ### Classification Safety Requirements
 

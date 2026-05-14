@@ -508,14 +508,14 @@ When Kubernetes credentials are available in GitHub Actions, the deployment step
 Example deployment commands:
 
 ```bash
-kubectl apply -f k8s/namespace.yaml
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/secrets.yaml
-kubectl apply -f k8s/services/
-kubectl apply -f k8s/jobs/migrate.yaml
+kubectl apply -f infra/k8s/namespace.yaml
+kubectl apply -f infra/k8s/configmap.yaml
+kubectl apply -f infra/k8s/secrets.yaml
+kubectl apply -f infra/k8s/services/
+kubectl apply -f infra/k8s/jobs/migrate.yaml
 kubectl wait --for=condition=complete job/django-migrate --timeout=120s
-kubectl apply -f k8s/deployments/
-kubectl apply -f k8s/ingress.yaml
+kubectl apply -f infra/k8s/deployments/
+kubectl apply -f infra/k8s/ingress.yaml
 kubectl rollout status deployment/web
 kubectl rollout status deployment/worker
 kubectl rollout status deployment/classifier

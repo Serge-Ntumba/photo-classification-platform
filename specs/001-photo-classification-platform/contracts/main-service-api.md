@@ -129,13 +129,13 @@ Fields:
 
 | Field | Type | Required | Notes |
 |---|---|---:|---|
-| `photo` | file | yes | JPEG, PNG, or WebP |
+| `photo` | file | yes | JPEG, PNG, or WebP; non-empty; no larger than 5 MB; dimensions from 300x300 through 5000x5000 pixels inclusive |
 | `name` | string | yes | User-provided |
-| `age` | integer | yes | Configured range, recommended 0 to 120 |
+| `age` | integer | yes | 0 through 120 inclusive |
 | `place_of_living` | string | yes | User-provided location |
 | `gender` | string | yes | User-provided metadata only |
 | `country_of_origin` | string | yes | User-provided country |
-| `description` | string | no | Length-limited |
+| `description` | string | no | Maximum 1,000 characters |
 
 Response: `201 Created`
 
@@ -149,7 +149,7 @@ Response: `201 Created`
   "country_of_origin": "Germany",
   "description": "Optional user-provided description.",
   "photo": {
-    "object_key": "submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
+    "object_key": "uploads/submissions/45f36c63-05e9-4e1d-893f-5061f2c83c10/profile.jpg",
     "original_filename": "profile.jpg",
     "content_type": "image/jpeg",
     "size_bytes": 348221
@@ -169,6 +169,8 @@ Behavior:
 4. Store submission in PostgreSQL.
 5. Publish RabbitMQ/Celery classification job.
 6. Return created submission with pending classification state.
+
+If object storage succeeds but RabbitMQ/Celery publishing fails, the API must not leave the submission as `pending_classification`. It must either roll back the submission and clean up the uploaded object before returning an error, or persist a `classification_failed` state with retryable operational context.
 
 ### GET `/api/submissions/`
 
@@ -222,6 +224,8 @@ Query parameters:
 | `review_decision` | Latest classification review decision |
 | `created_after`, `created_before` | Timestamp filters |
 | `ordering` | Ordering |
+
+Invalid filter values must return a validation error instead of silently broadening the result set. Broad search queries should be bounded by pagination, page-size caps, and indexed fields.
 
 ### GET `/api/admin/submissions/{id}/`
 

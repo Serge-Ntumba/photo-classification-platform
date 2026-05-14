@@ -145,12 +145,12 @@ The rule-based classifier should evaluate deterministic technical signals:
 - MIME type is supported.
 - File signature matches expected type.
 - File can be opened and parsed as an image.
-- File size is within configured limits.
-- Dimensions are within configured limits.
+- File is non-empty and no larger than 5 MB.
+- Dimensions are from 300x300 through 5000x5000 pixels inclusive.
 - Required metadata completeness flag is true.
 - Upload does not look corrupted or suspicious.
 
-Suggested configurable defaults:
+Required validation limits:
 
 ```text
 Allowed MIME types: image/jpeg, image/png, image/webp
