@@ -77,18 +77,18 @@
 
 ### Tests for User Story 1
 
-- [ ] T027 [P] [US1] Add contract tests for `POST /api/auth/register/`, `POST /api/auth/login/`, and `GET /api/auth/me/` in `tests/contracts/test_auth_api.py`
-- [ ] T028 [P] [US1] Add integration tests for registration, login, token/session use, and profile retrieval in `services/main/apps/accounts/tests/test_auth_flow.py`
-- [ ] T029 [P] [US1] Add permission regression tests proving public registration cannot set `is_staff` or `is_superuser` in `services/main/apps/accounts/tests/test_registration_permissions.py`
+- [X] T027 [P] [US1] Add contract tests for `POST /api/auth/register/`, `POST /api/auth/login/`, and `GET /api/auth/me/` in `tests/contracts/test_auth_api.py`
+- [X] T028 [P] [US1] Add integration tests for registration, login, token/session use, and profile retrieval in `services/main/apps/accounts/tests/test_auth_flow.py`
+- [X] T029 [P] [US1] Add permission regression tests proving public registration cannot set `is_staff` or `is_superuser` in `services/main/apps/accounts/tests/test_registration_permissions.py`
 
 ### Implementation for User Story 1
 
-- [ ] T030 [US1] Implement account registration, login, and profile serializers in `services/main/apps/accounts/serializers.py`
-- [ ] T031 [US1] Implement account registration, login, and profile views in `services/main/apps/accounts/views.py`
-- [ ] T032 [US1] Wire account API routes under `/api/auth/` in `services/main/apps/accounts/urls.py` and `services/main/config/urls.py`
-- [ ] T033 [US1] Configure API authentication behavior and token/session settings in `services/main/config/settings.py`
-- [ ] T034 [US1] Register the custom user model for controlled admin management in `services/main/apps/accounts/admin.py`
-- [ ] T035 [US1] Generate and verify OpenAPI schemas for auth endpoints in `services/main/config/urls.py` and `services/main/apps/accounts/serializers.py`
+- [X] T030 [US1] Implement account registration, login, and profile serializers in `services/main/apps/accounts/serializers.py`
+- [X] T031 [US1] Implement account registration, login, and profile views in `services/main/apps/accounts/views.py`
+- [X] T032 [US1] Wire account API routes under `/api/auth/` in `services/main/apps/accounts/urls.py` and `services/main/config/urls.py`
+- [X] T033 [US1] Configure API authentication behavior and token/session settings in `services/main/config/settings.py`
+- [X] T034 [US1] Register the custom user model for controlled admin management in `services/main/apps/accounts/admin.py`
+- [X] T035 [US1] Generate and verify OpenAPI schemas for auth endpoints in `services/main/config/urls.py` and `services/main/apps/accounts/serializers.py`
 
 **Checkpoint**: User Story 1 is independently functional and testable.
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from urllib.parse import parse_qsl, urlparse
 
@@ -154,6 +155,18 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
     ],
     "EXCEPTION_HANDLER": "apps.core.errors.api_exception_handler",
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=env_int("JWT_ACCESS_TOKEN_LIFETIME_MINUTES", 15),
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        days=env_int("JWT_REFRESH_TOKEN_LIFETIME_DAYS", 7),
+    ),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
 }
 
 SPECTACULAR_SETTINGS = {
