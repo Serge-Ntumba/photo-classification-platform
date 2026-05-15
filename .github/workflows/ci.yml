@@ -1,0 +1,229 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "001-photo-classification-platform"
+  pull_request:
+
+jobs:
+  validate:
+    name: Lint, tests, contracts, safety, and images
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: photo_classification
+          POSTGRES_USER: photo_app
+          POSTGRES_PASSWORD: photo_app_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U photo_app -d photo_classification"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      rabbitmq:
+        image: rabbitmq:3.13-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: photo_app
+          RABBITMQ_DEFAULT_PASS: photo_app_password
+          RABBITMQ_DEFAULT_VHOST: photo_app
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      CLASSIFIER_PROVIDER: rule_based
+      MODEL_PROVIDER_API_KEY: ""
+      DJANGO_SETTINGS_MODULE: config.settings
+      DJANGO_SECRET_KEY: ci-secret-key
+      DJANGO_DEBUG: "false"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      DATABASE_URL: postgresql://photo_app:photo_app_password@localhost:5432/photo_classification
+      POSTGRES_DB: photo_classification
+      POSTGRES_USER: photo_app
+      POSTGRES_PASSWORD: photo_app_password
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      CELERY_BROKER_URL: amqp://photo_app:photo_app_password@localhost:5672/photo_app
+      CELERY_RESULT_BACKEND: rpc://
+      CELERY_TASK_ALWAYS_EAGER: "true"
+      CELERY_TASK_EAGER_PROPAGATES: "true"
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin-password
+      S3_ENDPOINT_URL: http://localhost:9000
+      S3_ACCESS_KEY_ID: minioadmin
+      S3_SECRET_ACCESS_KEY: minioadmin-password
+      S3_BUCKET_NAME: photo-submissions
+      S3_REGION_NAME: us-east-1
+      S3_USE_SSL: "false"
+      CLASSIFIER_URL: http://localhost:8001
+      PHOTO_MAX_UPLOAD_BYTES: "5242880"
+      PHOTO_MIN_WIDTH: "300"
+      PHOTO_MIN_HEIGHT: "300"
+      PHOTO_MAX_WIDTH: "5000"
+      PHOTO_MAX_HEIGHT: "5000"
+      CLASSIFIER_TIMEOUT_SECONDS: "5"
+      CLASSIFIER_MAX_RETRIES: "3"
+      RABBITMQ_PUBLISH_MAX_ATTEMPTS: "3"
+      RETRY_BACKOFF_BASE_SECONDS: "2"
+      RETRY_BACKOFF_CAP_SECONDS: "60"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Start MinIO service for CI
+        run: |
+          docker run -d --name ci-minio \
+            -p 9000:9000 \
+            -e MINIO_ROOT_USER="$MINIO_ROOT_USER" \
+            -e MINIO_ROOT_PASSWORD="$MINIO_ROOT_PASSWORD" \
+            quay.io/minio/minio:latest server /data
+          for attempt in $(seq 1 30); do
+            if curl -fsS "$S3_ENDPOINT_URL/minio/health/live"; then
+              break
+            fi
+            if [ "$attempt" = "30" ]; then
+              docker logs ci-minio
+              exit 1
+            fi
+            sleep 2
+          done
+          docker run --rm --network host \
+            -e S3_ENDPOINT_URL="$S3_ENDPOINT_URL" \
+            -e S3_ACCESS_KEY_ID="$S3_ACCESS_KEY_ID" \
+            -e S3_SECRET_ACCESS_KEY="$S3_SECRET_ACCESS_KEY" \
+            -e S3_BUCKET_NAME="$S3_BUCKET_NAME" \
+            quay.io/minio/mc:latest \
+            sh -c 'mc alias set local "$S3_ENDPOINT_URL" "$S3_ACCESS_KEY_ID" "$S3_SECRET_ACCESS_KEY" && mc mb --ignore-existing "local/$S3_BUCKET_NAME" && mc anonymous set none "local/$S3_BUCKET_NAME"'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[main,classifier,dev]"
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Format check
+        run: ruff format --check .
+
+      - name: Django migration check
+        run: |
+          if [ -f services/main/manage.py ]; then
+            python services/main/manage.py makemigrations --check --dry-run
+            python services/main/manage.py migrate --check
+          else
+            echo "Django project not created yet; skipping migration check."
+          fi
+
+      - name: Main service tests
+        run: |
+          if find services/main -name "test_*.py" -print -quit | grep -q .; then
+            pytest services/main
+          else
+            echo "No main service tests yet."
+          fi
+
+      - name: Classifier service tests
+        run: |
+          if find services/classifier -name "test_*.py" -print -quit | grep -q .; then
+            pytest services/classifier
+          else
+            echo "No classifier service tests yet."
+          fi
+
+      - name: Contract tests
+        run: |
+          if find tests/contracts -name "test_*.py" -print -quit | grep -q .; then
+            pytest tests/contracts
+          else
+            echo "No contract tests yet."
+          fi
+
+      - name: Safety tests
+        run: |
+          if find tests/safety -name "test_*.py" -print -quit | grep -q .; then
+            pytest tests/safety
+          else
+            echo "No safety tests yet."
+          fi
+
+      - name: Validate credential-free classifier default
+        run: |
+          test "$CLASSIFIER_PROVIDER" = "rule_based"
+          test -z "$MODEL_PROVIDER_API_KEY"
+
+      - name: Docker Compose configuration
+        run: docker compose config
+
+      - name: Validate classifier network isolation
+        run: |
+          docker compose config --format json > compose-config.json
+          python - <<'PY'
+          import json
+
+          config = json.load(open("compose-config.json", encoding="utf-8"))
+          classifier = config["services"]["classifier"]
+          environment = classifier.get("environment") or {}
+          if isinstance(environment, list):
+              env_keys = {item.split("=", 1)[0] for item in environment}
+          else:
+              env_keys = set(environment)
+
+          forbidden = {
+              "DATABASE_URL",
+              "CELERY_BROKER_URL",
+              "CELERY_RESULT_BACKEND",
+              "S3_ENDPOINT_URL",
+              "S3_ACCESS_KEY_ID",
+              "S3_SECRET_ACCESS_KEY",
+              "S3_BUCKET_NAME",
+              "S3_REGION_NAME",
+              "S3_USE_SSL",
+              "MINIO_ROOT_USER",
+              "MINIO_ROOT_PASSWORD",
+              "RABBITMQ_DEFAULT_USER",
+              "RABBITMQ_DEFAULT_PASS",
+              "RABBITMQ_DEFAULT_VHOST",
+          }
+          forbidden_prefixes = ("POSTGRES_",)
+          leaked = sorted(
+              key
+              for key in env_keys
+              if key in forbidden or any(key.startswith(prefix) for prefix in forbidden_prefixes)
+          )
+          if leaked:
+              raise SystemExit(f"classifier receives forbidden credentials/settings: {leaked}")
+          if classifier.get("ports"):
+              raise SystemExit("classifier must not publish host ports")
+          PY
+
+      - name: Build Django service image
+        run: docker build -t photo-classification-web:${{ github.sha }} -f services/main/Dockerfile .
+
+      - name: Build worker image
+        run: docker build -t photo-classification-worker:${{ github.sha }} -f services/main/Dockerfile .
+
+      - name: Build classifier image
+        run: docker build -t photo-classification-classifier:${{ github.sha }} -f services/classifier/Dockerfile .
+
+      - name: Docker Compose smoke coverage
+        run: |
+          if [ -x scripts/smoke_photo_classification_flow.sh ]; then
+            scripts/smoke_photo_classification_flow.sh
+          else
+            echo "Smoke script not created yet; Docker Compose config was validated."
+          fi

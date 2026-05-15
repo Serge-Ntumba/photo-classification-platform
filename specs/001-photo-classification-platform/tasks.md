@@ -15,15 +15,15 @@
 
 **Purpose**: Initialize the implementation structure for the accepted Django/DRF, FastAPI, PostgreSQL, MinIO/S3, RabbitMQ, Celery, and Docker Compose architecture.
 
-- [ ] T001 Create root Python/tooling configuration with Django, DRF, FastAPI, Celery, pytest, ruff, and formatting settings in `pyproject.toml`
-- [ ] T002 [P] Create local environment template with PostgreSQL, RabbitMQ, MinIO, Django, Celery, and classifier settings in `.env.example`
-- [ ] T003 [P] Create implementation ignore rules for Python, Docker, local env files, media, coverage, and caches in `.gitignore`
-- [ ] T004 Create implementation directory skeleton under `services/main/`, `services/classifier/`, `tests/contracts/`, `tests/safety/`, `infra/docker/`, `infra/k8s/`, and `scripts/`
-- [ ] T005 Create Django/Celery service image definition in `services/main/Dockerfile`
-- [ ] T006 Create FastAPI classifier service image definition in `services/classifier/Dockerfile`
-- [ ] T007 Create local runtime composition for `web`, `worker`, `classifier`, `postgres`, `rabbitmq`, `minio`, optional `minio-init`, and `nginx` in `docker-compose.yml`
-- [ ] T008 Create local Nginx routing that exposes Django only and keeps classifier internal in `infra/docker/nginx.conf`
-- [ ] T009 Create CI workflow skeleton for lint, tests, migrations, contract tests, safety tests, Docker image builds, Docker Compose smoke coverage, and credential-free default classifier validation with no external model-provider credentials in `.github/workflows/ci.yml`
+- [X] T001 Create root Python/tooling configuration with Django, DRF, FastAPI, Celery, pytest, ruff, and formatting settings in `pyproject.toml`
+- [X] T002 [P] Create local environment template with PostgreSQL, RabbitMQ, MinIO, Django, Celery, and classifier settings in `.env.example`
+- [X] T003 [P] Create implementation ignore rules for Python, Docker, local env files, media, coverage, and caches in `.gitignore`
+- [X] T004 Create implementation directory skeleton under `services/main/`, `services/classifier/`, `tests/contracts/`, `tests/safety/`, `infra/docker/`, `infra/k8s/`, and `scripts/`
+- [X] T005 Create Django/Celery service image definition in `services/main/Dockerfile`
+- [X] T006 Create FastAPI classifier service image definition in `services/classifier/Dockerfile`
+- [X] T007 Create local runtime composition for `web`, `worker`, `classifier`, `postgres`, `rabbitmq`, `minio`, optional `minio-init`, and `nginx` in `docker-compose.yml`
+- [X] T008 Create local Nginx routing that exposes Django only and keeps classifier internal in `infra/docker/nginx.conf`
+- [X] T009 Create CI workflow skeleton for lint, tests, migrations, contract tests, safety tests, Docker image builds, Docker Compose smoke coverage, and credential-free default classifier validation with no external model-provider credentials in `.github/workflows/ci.yml`
 
 ---
 

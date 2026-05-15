@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage/
+htmlcov/
+dist/
+build/
+.venv/
+venv/
+
+# Django / local runtime
+db.sqlite3
+media/
+staticfiles/
+uploads/
+*.log
+.env
+.env.*
+!.env.example
+
+# Docker / local services
+.docker-data/
+postgres-data/
+rabbitmq-data/
+minio-data/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
