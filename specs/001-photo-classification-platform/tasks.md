@@ -102,23 +102,23 @@
 
 ### Tests for User Story 2
 
-- [ ] T036 [P] [US2] Add contract tests for `POST /api/submissions/`, `GET /api/submissions/`, and `GET /api/submissions/{id}/` in `tests/contracts/test_submissions_api.py`
-- [ ] T037 [P] [US2] Add integration tests for valid photo submission, object storage write of sanitized bytes, database persistence, durable `ClassificationJob` outbox row creation, pending status only when the durable job exists, and RabbitMQ publish failure/retry exhaustion without leaving a pending orphan in `services/main/apps/submissions/tests/test_submission_create.py`
-- [ ] T038 [P] [US2] Add validation tests for missing metadata, age outside 0-120 inclusive, description over 1,000 characters, unsupported image type outside JPEG/PNG/WebP, files over 5 MB, empty files, dimensions outside 300x300 through 5000x5000 pixels inclusive before and after normalization, spoofed content type, corrupted image, safe-rewrite failure, accepted format-family preservation, and EXIF/GPS metadata removal in `services/main/apps/submissions/tests/test_submission_validation.py`
-- [ ] T039 [P] [US2] Add ownership tests proving users can list and retrieve only their own submissions in `services/main/apps/submissions/tests/test_submission_permissions.py`
+- [X] T036 [P] [US2] Add contract tests for `POST /api/submissions/`, `GET /api/submissions/`, and `GET /api/submissions/{id}/` in `tests/contracts/test_submissions_api.py`
+- [X] T037 [P] [US2] Add integration tests for valid photo submission, object storage write of sanitized bytes, database persistence, durable `ClassificationJob` outbox row creation, pending status only when the durable job exists, and RabbitMQ publish failure/retry exhaustion without leaving a pending orphan in `services/main/apps/submissions/tests/test_submission_create.py`
+- [X] T038 [P] [US2] Add validation tests for missing metadata, age outside 0-120 inclusive, description over 1,000 characters, unsupported image type outside JPEG/PNG/WebP, files over 5 MB, empty files, dimensions outside 300x300 through 5000x5000 pixels inclusive before and after normalization, spoofed content type, corrupted image, safe-rewrite failure, accepted format-family preservation, and EXIF/GPS metadata removal in `services/main/apps/submissions/tests/test_submission_validation.py`
+- [X] T039 [P] [US2] Add ownership tests proving users can list and retrieve only their own submissions in `services/main/apps/submissions/tests/test_submission_permissions.py`
 
 ### Implementation for User Story 2
 
-- [ ] T040 [US2] Implement the `Submission` model with private photo reference fields, metadata fields, status fields, indexes, constraints, and centralized status transition validation in `services/main/apps/submissions/models.py`
-- [ ] T041 [US2] Implement durable `ClassificationJob` outbox model with `submission`, `job_id`, `payload`, `publish_status`, `attempt_count`, `last_error`, `published_at`, `locked_at`, timestamps, and uniqueness/idempotency constraints in `services/main/apps/classification/models.py`
-- [ ] T042 [US2] Create initial submissions and classification job outbox migrations with indexes and constraints in `services/main/apps/submissions/migrations/0001_initial.py` and `services/main/apps/classification/migrations/0001_initial.py`
-- [ ] T043 [US2] Implement submission storage orchestration, sanitized image byte handling, post-normalization validation, and cleanup behavior for object storage writes in `services/main/apps/submissions/storage_service.py`
-- [ ] T044 [US2] Implement submission create/list/retrieve serializers with exact metadata and file validation limits: age 0-120 inclusive, optional description maximum 1,000 characters, JPEG/PNG/WebP only, non-empty files up to 5 MB, and image dimensions from 300x300 through 5000x5000 pixels inclusive in `services/main/apps/submissions/serializers.py`
-- [ ] T045 [US2] Implement user-owned submission viewset behavior in `services/main/apps/submissions/views.py`
-- [ ] T046 [US2] Wire user submission API routes under `/api/submissions/` in `services/main/apps/submissions/urls.py` and `services/main/config/urls.py`
-- [ ] T047 [US2] Implement transactional `ClassificationJob` outbox publisher using Celery/RabbitMQ payload rules, explicit publish status transitions, broker publish-attempt tracking, configured retry scheduling, and retry-exhaustion failure hooks in `services/main/apps/classification/publisher.py`
-- [ ] T048 [US2] Integrate durable job creation and outbox publishing into successful submission creation without embedding image bytes, credentials, tokens, or demographic metadata; rollback and clean object storage only when the database transaction or durable job row creation fails in `services/main/apps/submissions/views.py`
-- [ ] T049 [US2] Add submission OpenAPI request/response schema details for multipart upload and validation errors in `services/main/apps/submissions/serializers.py`
+- [X] T040 [US2] Implement the `Submission` model with private photo reference fields, metadata fields, status fields, indexes, constraints, and centralized status transition validation in `services/main/apps/submissions/models.py`
+- [X] T041 [US2] Implement durable `ClassificationJob` outbox model with `submission`, `job_id`, `payload`, `publish_status`, `attempt_count`, `last_error`, `published_at`, `locked_at`, timestamps, and uniqueness/idempotency constraints in `services/main/apps/classification/models.py`
+- [X] T042 [US2] Create initial submissions and classification job outbox migrations with indexes and constraints in `services/main/apps/submissions/migrations/0001_initial.py` and `services/main/apps/classification/migrations/0001_initial.py`
+- [X] T043 [US2] Implement submission storage orchestration, sanitized image byte handling, post-normalization validation, and cleanup behavior for object storage writes in `services/main/apps/submissions/storage_service.py`
+- [X] T044 [US2] Implement submission create/list/retrieve serializers with exact metadata and file validation limits: age 0-120 inclusive, optional description maximum 1,000 characters, JPEG/PNG/WebP only, non-empty files up to 5 MB, and image dimensions from 300x300 through 5000x5000 pixels inclusive in `services/main/apps/submissions/serializers.py`
+- [X] T045 [US2] Implement user-owned submission viewset behavior in `services/main/apps/submissions/views.py`
+- [X] T046 [US2] Wire user submission API routes under `/api/submissions/` in `services/main/apps/submissions/urls.py` and `services/main/config/urls.py`
+- [X] T047 [US2] Implement transactional `ClassificationJob` outbox publisher using Celery/RabbitMQ payload rules, explicit publish status transitions, broker publish-attempt tracking, configured retry scheduling, and retry-exhaustion failure hooks in `services/main/apps/classification/publisher.py`
+- [X] T048 [US2] Integrate durable job creation and outbox publishing into successful submission creation without embedding image bytes, credentials, tokens, or demographic metadata; rollback and clean object storage only when the database transaction or durable job row creation fails in `services/main/apps/submissions/views.py`
+- [X] T049 [US2] Add submission OpenAPI request/response schema details for multipart upload and validation errors in `services/main/apps/submissions/serializers.py`
 
 **Checkpoint**: User Story 2 works independently with authenticated users, sanitized private object storage, a durable outbox job, and unambiguous queue publish failure handling.
 
