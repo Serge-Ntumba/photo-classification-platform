@@ -47,23 +47,23 @@
 - Classification history is preserved while the submission exists; permanent deletion removes the photo object and submission-linked personal data/results, retaining only sanitized operational audit records when needed.
 - Provider metadata and raw classifier responses may be stored only after sanitizer validation removes forbidden traits, secrets, signed URLs, prompts, raw personal data, and nested provider-specific sensitive fields.
 
-- [ ] T010 Create Django project entrypoints and base configuration in `services/main/manage.py`, `services/main/config/settings.py`, `services/main/config/urls.py`, `services/main/config/asgi.py`, and `services/main/config/wsgi.py`
-- [ ] T011 Create Django app configs for accounts, submissions, classification, and core utilities in `services/main/apps/accounts/apps.py`, `services/main/apps/submissions/apps.py`, `services/main/apps/classification/apps.py`, and `services/main/apps/core/apps.py`
-- [ ] T012 Configure shared pytest, pytest-django, FastAPI test client, temporary media/storage, and Celery eager fixtures in `tests/conftest.py`
-- [ ] T013 [P] Add image helper tests for EXIF/GPS/application metadata stripping, sanitized image bytes, accepted format-family preservation, post-normalization dimension validation, and safe-rewrite rejection in `services/main/apps/core/tests/test_images.py`
-- [ ] T014 [P] Add `ClassificationJob` outbox model tests for required fields, unique `job_id`, explicit publish status lifecycle values, attempt/error tracking, lock fields, and submission ownership in `services/main/apps/classification/tests/test_classification_job_model.py`
-- [ ] T015 [P] Add submission state-machine unit tests for allowed transitions, rejected transitions, terminal-state immutability, terminal `classification_failed`, and retry-exhaustion failure paths in `services/main/apps/submissions/tests/test_status_state_machine.py`
-- [ ] T016 Create the custom Django user model and configure `AUTH_USER_MODEL` in `services/main/apps/accounts/models.py` and `services/main/config/settings.py`
-- [ ] T017 Create the initial accounts migration for the custom user model in `services/main/apps/accounts/migrations/0001_initial.py`
-- [ ] T018 Configure Django REST Framework, authentication defaults, pagination, schema generation, and installed apps in `services/main/config/settings.py`
-- [ ] T019 Implement consistent API error response helpers in `services/main/apps/core/errors.py`
-- [ ] T020 Implement S3-compatible object storage settings and client wrapper for MinIO/S3 in `services/main/apps/core/storage.py`
-- [ ] T021 Implement image upload validation and normalization helpers for content type, signature, size, dimensions, parseability, accepted format-family preservation, post-normalization dimension validation, safe-rewrite rejection, and EXIF/GPS/application metadata stripping in `services/main/apps/core/images.py`
-- [ ] T022 Create Celery application configuration and task routing for RabbitMQ in `services/main/config/celery.py` and `services/main/config/__init__.py`
-- [ ] T023 [P] Create FastAPI application shell with internal health route in `services/classifier/app/main.py`
-- [ ] T024 Define accepted status, category, decision, provider, explicit job publish status lifecycle, retry/backoff/timeout settings, and schema constants in `services/main/apps/classification/constants.py`
-- [ ] T025 [P] Define classifier request and response schemas shared by classifier code in `services/classifier/app/schemas.py`
-- [ ] T026 Implement Django health endpoint and route in `services/main/apps/core/views.py` and `services/main/config/urls.py`
+- [X] T010 Create Django project entrypoints and base configuration in `services/main/manage.py`, `services/main/config/settings.py`, `services/main/config/urls.py`, `services/main/config/asgi.py`, and `services/main/config/wsgi.py`
+- [X] T011 Create Django app configs for accounts, submissions, classification, and core utilities in `services/main/apps/accounts/apps.py`, `services/main/apps/submissions/apps.py`, `services/main/apps/classification/apps.py`, and `services/main/apps/core/apps.py`
+- [X] T012 Configure shared pytest, pytest-django, FastAPI test client, temporary media/storage, and Celery eager fixtures in `tests/conftest.py`
+- [X] T013 [P] Add image helper tests for EXIF/GPS/application metadata stripping, sanitized image bytes, accepted format-family preservation, post-normalization dimension validation, and safe-rewrite rejection in `services/main/apps/core/tests/test_images.py`
+- [X] T014 [P] Add `ClassificationJob` outbox model tests for required fields, unique `job_id`, explicit publish status lifecycle values, attempt/error tracking, lock fields, and submission ownership in `services/main/apps/classification/tests/test_classification_job_model.py`
+- [X] T015 [P] Add submission state-machine unit tests for allowed transitions, rejected transitions, terminal-state immutability, terminal `classification_failed`, and retry-exhaustion failure paths in `services/main/apps/submissions/tests/test_status_state_machine.py`
+- [X] T016 Create the custom Django user model and configure `AUTH_USER_MODEL` in `services/main/apps/accounts/models.py` and `services/main/config/settings.py`
+- [X] T017 Create the initial accounts migration for the custom user model in `services/main/apps/accounts/migrations/0001_initial.py`
+- [X] T018 Configure Django REST Framework, authentication defaults, pagination, schema generation, and installed apps in `services/main/config/settings.py`
+- [X] T019 Implement consistent API error response helpers in `services/main/apps/core/errors.py`
+- [X] T020 Implement S3-compatible object storage settings and client wrapper for MinIO/S3 in `services/main/apps/core/storage.py`
+- [X] T021 Implement image upload validation and normalization helpers for content type, signature, size, dimensions, parseability, accepted format-family preservation, post-normalization dimension validation, safe-rewrite rejection, and EXIF/GPS/application metadata stripping in `services/main/apps/core/images.py`
+- [X] T022 Create Celery application configuration and task routing for RabbitMQ in `services/main/config/celery.py` and `services/main/config/__init__.py`
+- [X] T023 [P] Create FastAPI application shell with internal health route in `services/classifier/app/main.py`
+- [X] T024 Define accepted status, category, decision, provider, explicit job publish status lifecycle, retry/backoff/timeout settings, and schema constants in `services/main/apps/classification/constants.py`
+- [X] T025 [P] Define classifier request and response schemas shared by classifier code in `services/classifier/app/schemas.py`
+- [X] T026 Implement Django health endpoint and route in `services/main/apps/core/views.py` and `services/main/config/urls.py`
 
 **Checkpoint**: The repository has runnable service shells, shared settings, test fixtures, health endpoints, safety-first image helpers, durable outbox tests, and infrastructure wiring.
 
