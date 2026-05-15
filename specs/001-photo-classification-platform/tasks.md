@@ -23,7 +23,7 @@
 - [ ] T006 Create FastAPI classifier service image definition in `services/classifier/Dockerfile`
 - [ ] T007 Create local runtime composition for `web`, `worker`, `classifier`, `postgres`, `rabbitmq`, `minio`, optional `minio-init`, and `nginx` in `docker-compose.yml`
 - [ ] T008 Create local Nginx routing that exposes Django only and keeps classifier internal in `infra/docker/nginx.conf`
-- [ ] T009 Create CI workflow skeleton for lint, tests, migrations, contract tests, safety tests, and Docker image builds in `.github/workflows/ci.yml`
+- [ ] T009 Create CI workflow skeleton for lint, tests, migrations, contract tests, safety tests, Docker image builds, Docker Compose smoke coverage, and credential-free default classifier validation with no external model-provider credentials in `.github/workflows/ci.yml`
 
 ---
 
@@ -40,22 +40,28 @@
 - Accepted submissions may enter `pending_classification` only when a durable Django-owned `ClassificationJob` outbox row exists.
 - RabbitMQ publish failures are recorded on the outbox job and retried; retry exhaustion transitions the submission to `classification_failed`.
 - Submission status changes must go through one state-machine service; terminal states are immutable unless explicit reclassification is added later.
+- Outbox publish status lifecycle is `pending -> publishing -> published`; publish errors move to `publish_retry_scheduled`; exhausted publish attempts move to `publish_failed` and then transition the submission to `classification_failed`.
+- Retry policy for v1 is explicit: RabbitMQ publish max attempts = 3, worker/classifier max retries = 3, classifier request timeout = 5 seconds, exponential backoff with jitter uses a 2 second base and 60 second cap.
+- `classification_failed` is terminal in v1; any future reclassification flow must add a new explicit state-machine transition and task set.
+- Image normalization must preserve the accepted source format family (JPEG, PNG, or WebP), revalidate dimensions after rewrite, and reject images that cannot be safely rewritten without metadata.
+- Classification history is preserved while the submission exists; permanent deletion removes the photo object and submission-linked personal data/results, retaining only sanitized operational audit records when needed.
+- Provider metadata and raw classifier responses may be stored only after sanitizer validation removes forbidden traits, secrets, signed URLs, prompts, raw personal data, and nested provider-specific sensitive fields.
 
 - [ ] T010 Create Django project entrypoints and base configuration in `services/main/manage.py`, `services/main/config/settings.py`, `services/main/config/urls.py`, `services/main/config/asgi.py`, and `services/main/config/wsgi.py`
 - [ ] T011 Create Django app configs for accounts, submissions, classification, and core utilities in `services/main/apps/accounts/apps.py`, `services/main/apps/submissions/apps.py`, `services/main/apps/classification/apps.py`, and `services/main/apps/core/apps.py`
 - [ ] T012 Configure shared pytest, pytest-django, FastAPI test client, temporary media/storage, and Celery eager fixtures in `tests/conftest.py`
-- [ ] T013 [P] Add image helper tests for EXIF/GPS/application metadata stripping and sanitized image bytes in `services/main/apps/core/tests/test_images.py`
-- [ ] T014 [P] Add `ClassificationJob` outbox model tests for required fields, unique `job_id`, publish status, attempt/error tracking, lock fields, and submission ownership in `services/main/apps/classification/tests/test_classification_job_model.py`
-- [ ] T015 [P] Add submission state-machine unit tests for allowed transitions, rejected transitions, terminal-state immutability, and retry-exhaustion failure paths in `services/main/apps/submissions/tests/test_status_state_machine.py`
+- [ ] T013 [P] Add image helper tests for EXIF/GPS/application metadata stripping, sanitized image bytes, accepted format-family preservation, post-normalization dimension validation, and safe-rewrite rejection in `services/main/apps/core/tests/test_images.py`
+- [ ] T014 [P] Add `ClassificationJob` outbox model tests for required fields, unique `job_id`, explicit publish status lifecycle values, attempt/error tracking, lock fields, and submission ownership in `services/main/apps/classification/tests/test_classification_job_model.py`
+- [ ] T015 [P] Add submission state-machine unit tests for allowed transitions, rejected transitions, terminal-state immutability, terminal `classification_failed`, and retry-exhaustion failure paths in `services/main/apps/submissions/tests/test_status_state_machine.py`
 - [ ] T016 Create the custom Django user model and configure `AUTH_USER_MODEL` in `services/main/apps/accounts/models.py` and `services/main/config/settings.py`
 - [ ] T017 Create the initial accounts migration for the custom user model in `services/main/apps/accounts/migrations/0001_initial.py`
 - [ ] T018 Configure Django REST Framework, authentication defaults, pagination, schema generation, and installed apps in `services/main/config/settings.py`
 - [ ] T019 Implement consistent API error response helpers in `services/main/apps/core/errors.py`
 - [ ] T020 Implement S3-compatible object storage settings and client wrapper for MinIO/S3 in `services/main/apps/core/storage.py`
-- [ ] T021 Implement image upload validation and normalization helpers for content type, signature, size, dimensions, parseability, and EXIF/GPS/application metadata stripping in `services/main/apps/core/images.py`
+- [ ] T021 Implement image upload validation and normalization helpers for content type, signature, size, dimensions, parseability, accepted format-family preservation, post-normalization dimension validation, safe-rewrite rejection, and EXIF/GPS/application metadata stripping in `services/main/apps/core/images.py`
 - [ ] T022 Create Celery application configuration and task routing for RabbitMQ in `services/main/config/celery.py` and `services/main/config/__init__.py`
 - [ ] T023 [P] Create FastAPI application shell with internal health route in `services/classifier/app/main.py`
-- [ ] T024 Define accepted status, category, decision, provider, job publish status, and schema constants in `services/main/apps/classification/constants.py`
+- [ ] T024 Define accepted status, category, decision, provider, explicit job publish status lifecycle, retry/backoff/timeout settings, and schema constants in `services/main/apps/classification/constants.py`
 - [ ] T025 [P] Define classifier request and response schemas shared by classifier code in `services/classifier/app/schemas.py`
 - [ ] T026 Implement Django health endpoint and route in `services/main/apps/core/views.py` and `services/main/config/urls.py`
 
@@ -98,7 +104,7 @@
 
 - [ ] T036 [P] [US2] Add contract tests for `POST /api/submissions/`, `GET /api/submissions/`, and `GET /api/submissions/{id}/` in `tests/contracts/test_submissions_api.py`
 - [ ] T037 [P] [US2] Add integration tests for valid photo submission, object storage write of sanitized bytes, database persistence, durable `ClassificationJob` outbox row creation, pending status only when the durable job exists, and RabbitMQ publish failure/retry exhaustion without leaving a pending orphan in `services/main/apps/submissions/tests/test_submission_create.py`
-- [ ] T038 [P] [US2] Add validation tests for missing metadata, age outside 0-120 inclusive, description over 1,000 characters, unsupported image type outside JPEG/PNG/WebP, files over 5 MB, empty files, dimensions outside 300x300 through 5000x5000 pixels inclusive, spoofed content type, corrupted image, and EXIF/GPS metadata removal in `services/main/apps/submissions/tests/test_submission_validation.py`
+- [ ] T038 [P] [US2] Add validation tests for missing metadata, age outside 0-120 inclusive, description over 1,000 characters, unsupported image type outside JPEG/PNG/WebP, files over 5 MB, empty files, dimensions outside 300x300 through 5000x5000 pixels inclusive before and after normalization, spoofed content type, corrupted image, safe-rewrite failure, accepted format-family preservation, and EXIF/GPS metadata removal in `services/main/apps/submissions/tests/test_submission_validation.py`
 - [ ] T039 [P] [US2] Add ownership tests proving users can list and retrieve only their own submissions in `services/main/apps/submissions/tests/test_submission_permissions.py`
 
 ### Implementation for User Story 2
@@ -106,11 +112,11 @@
 - [ ] T040 [US2] Implement the `Submission` model with private photo reference fields, metadata fields, status fields, indexes, constraints, and centralized status transition validation in `services/main/apps/submissions/models.py`
 - [ ] T041 [US2] Implement durable `ClassificationJob` outbox model with `submission`, `job_id`, `payload`, `publish_status`, `attempt_count`, `last_error`, `published_at`, `locked_at`, timestamps, and uniqueness/idempotency constraints in `services/main/apps/classification/models.py`
 - [ ] T042 [US2] Create initial submissions and classification job outbox migrations with indexes and constraints in `services/main/apps/submissions/migrations/0001_initial.py` and `services/main/apps/classification/migrations/0001_initial.py`
-- [ ] T043 [US2] Implement submission storage orchestration, sanitized image byte handling, and cleanup behavior for object storage writes in `services/main/apps/submissions/storage_service.py`
+- [ ] T043 [US2] Implement submission storage orchestration, sanitized image byte handling, post-normalization validation, and cleanup behavior for object storage writes in `services/main/apps/submissions/storage_service.py`
 - [ ] T044 [US2] Implement submission create/list/retrieve serializers with exact metadata and file validation limits: age 0-120 inclusive, optional description maximum 1,000 characters, JPEG/PNG/WebP only, non-empty files up to 5 MB, and image dimensions from 300x300 through 5000x5000 pixels inclusive in `services/main/apps/submissions/serializers.py`
 - [ ] T045 [US2] Implement user-owned submission viewset behavior in `services/main/apps/submissions/views.py`
 - [ ] T046 [US2] Wire user submission API routes under `/api/submissions/` in `services/main/apps/submissions/urls.py` and `services/main/config/urls.py`
-- [ ] T047 [US2] Implement transactional `ClassificationJob` outbox publisher using Celery/RabbitMQ payload rules, broker publish-attempt tracking, retry scheduling, and retry-exhaustion failure hooks in `services/main/apps/classification/publisher.py`
+- [ ] T047 [US2] Implement transactional `ClassificationJob` outbox publisher using Celery/RabbitMQ payload rules, explicit publish status transitions, broker publish-attempt tracking, configured retry scheduling, and retry-exhaustion failure hooks in `services/main/apps/classification/publisher.py`
 - [ ] T048 [US2] Integrate durable job creation and outbox publishing into successful submission creation without embedding image bytes, credentials, tokens, or demographic metadata; rollback and clean object storage only when the database transaction or durable job row creation fails in `services/main/apps/submissions/views.py`
 - [ ] T049 [US2] Add submission OpenAPI request/response schema details for multipart upload and validation errors in `services/main/apps/submissions/serializers.py`
 
@@ -129,33 +135,33 @@
 - [ ] T050 [P] [US3] Add classifier API contract tests for `POST /classify` and allowed response schema in `tests/contracts/test_classifier_api.py`
 - [ ] T051 [P] [US3] Add deterministic rule-based classifier tests for supported JPEG/PNG/WebP images, empty files, files over 5 MB, images outside 300x300 through 5000x5000 pixels inclusive, invalid files, unsupported types, incomplete metadata, and category priority in `services/classifier/tests/test_rule_based_classifier.py`
 - [ ] T052 [P] [US3] Add Celery worker integration tests for successful classification processing in `services/main/apps/classification/tests/test_worker_success.py`
-- [ ] T053 [P] [US3] Add worker retry, timeout, malformed response, missing object, terminal-submission skip, retry-exhaustion failure, and duplicate delivery tests in `services/main/apps/classification/tests/test_worker_failures.py`
+- [ ] T053 [P] [US3] Add worker retry, timeout, malformed response, missing object, deleted-submission race, terminal-submission skip, retry-exhaustion failure, and duplicate delivery tests in `services/main/apps/classification/tests/test_worker_failures.py`
 - [ ] T054 [P] [US3] Add status mapping and latest-result persistence tests in `services/main/apps/classification/tests/test_status_mapping.py`
 - [ ] T055 [P] [US3] Add persisted idempotency tests proving duplicate `job_id` delivery does not create duplicate `ClassificationResult` rows or advance the latest pointer twice in `services/main/apps/classification/tests/test_worker_idempotency.py`
 - [ ] T056 [P] [US3] Add provider selection and rule-based fallback tests in `services/classifier/tests/test_providers.py`
-- [ ] T057 [P] [US3] Add Celery routing, retry, timeout, and backoff configuration tests in `services/main/apps/classification/tests/test_celery_config.py`
+- [ ] T057 [P] [US3] Add Celery routing, retry count, classifier timeout, backoff, jitter, and cap configuration tests in `services/main/apps/classification/tests/test_celery_config.py`
 
 ### Cross-Cutting Safety Tests Required Before User Story 3 Implementation
 
-- [ ] T058 [P] [US5] Add safety tests rejecting forbidden inferred trait fields in classifier output in `tests/safety/test_forbidden_trait_outputs.py`
-- [ ] T059 [P] [US5] Add demographic invariance tests proving age, gender, country, place, and name do not affect classifier decision outcomes in `tests/safety/test_demographic_invariance.py`
-- [ ] T060 [P] [US5] Add worker-to-classifier payload tests proving unnecessary demographic metadata, tokens, secrets, and object storage credentials are not sent in `tests/safety/test_classifier_payload_minimization.py`
-- [ ] T061 [P] [US5] Add storage and logging safety tests for image bytes, signed URLs, passwords, tokens, and secrets in `tests/safety/test_data_exposure.py`
+- [ ] T058 [P] [US5] Add safety tests rejecting forbidden inferred trait fields in classifier output, provider metadata, raw responses, and nested provider-specific structures in `tests/safety/test_forbidden_trait_outputs.py`
+- [ ] T059 [P] [US5] Add demographic invariance tests proving current and future demographic-like fields do not affect category, decision, score, priority, quality, safety, suitability, or pass/fail outcomes in `tests/safety/test_demographic_invariance.py`
+- [ ] T060 [P] [US5] Add worker-to-classifier payload tests proving unnecessary current and future demographic-like metadata, tokens, secrets, object storage credentials, and user/session identifiers are not sent in `tests/safety/test_classifier_payload_minimization.py`
+- [ ] T061 [P] [US5] Add storage, API/admin response, raw-response, and logging safety tests for image bytes, signed URLs, passwords, tokens, secrets, raw prompts, provider raw data, and personal metadata in `tests/safety/test_data_exposure.py`
 
 ### Implementation for User Story 3
 
-- [ ] T062 [US3] Implement `ClassificationResult` model with persisted `job_id` uniqueness/idempotency fields and latest result relationship fields in `services/main/apps/classification/models.py` and `services/main/apps/submissions/models.py`
+- [ ] T062 [US3] Implement `ClassificationResult` model with persisted `job_id` uniqueness/idempotency fields, sanitized `provider_metadata`/`raw_response` fields, and latest result relationship fields in `services/main/apps/classification/models.py` and `services/main/apps/submissions/models.py`
 - [ ] T063 [US3] Create classification result and submission latest-pointer migrations in `services/main/apps/classification/migrations/0002_classification_result.py` and `services/main/apps/submissions/migrations/0002_latest_classification.py`
 - [ ] T064 [US3] Implement classifier Pydantic request/response models, enums, and validation rules in `services/classifier/app/schemas.py`
 - [ ] T065 [US3] Implement deterministic rule-based submission-review classifier logic with exact limits for JPEG/PNG/WebP support, non-empty files up to 5 MB, image dimensions from 300x300 through 5000x5000 pixels inclusive, incomplete metadata handling, and safe category priority in `services/classifier/app/rules.py`
 - [ ] T066 [US3] Implement internal `POST /classify` endpoint using multipart image input and minimal technical metadata in `services/classifier/app/main.py`
 - [ ] T067 [US3] Implement classifier provider selection and rule-based fallback behavior in `services/classifier/app/providers.py`
-- [ ] T068 [US3] Implement Django worker client for calling the internal classifier with timeout handling in `services/main/apps/classification/client.py`
-- [ ] T069 [US3] Implement Celery classification task with durable job loading, row-level claim/lock behavior, submission loading, `pending_classification -> classifying` transition, object storage fetch, classifier call, retry policy, terminal-state skip, and duplicate-delivery checks in `services/main/apps/classification/tasks.py`
-- [ ] T070 [US3] Implement classifier response validation before persistence in `services/main/apps/classification/validators.py`
-- [ ] T071 [US3] Implement transactional result persistence, unique `job_id`/idempotency handling, latest result pointer update, retry-exhaustion failure mapping, and state-machine transition enforcement in `services/main/apps/classification/services.py`
-- [ ] T072 [US3] Include latest classification result in user submission responses in `services/main/apps/submissions/serializers.py`
-- [ ] T073 [US3] Wire Celery task discovery and retry/backoff settings in `services/main/config/settings.py`
+- [ ] T068 [US3] Implement Django worker client for calling the internal classifier with configured timeout handling and minimal allowed technical metadata in `services/main/apps/classification/client.py`
+- [ ] T069 [US3] Implement Celery classification task with durable job loading, row-level claim/lock behavior, submission loading, `pending_classification -> classifying` transition, object storage fetch, classifier call, configured retry policy, deleted-submission handling, terminal-state skip, and duplicate-delivery checks in `services/main/apps/classification/tasks.py`
+- [ ] T070 [US3] Implement classifier response validation before persistence, including forbidden nested provider fields and sanitized `provider_metadata`/`raw_response` rules, in `services/main/apps/classification/validators.py`
+- [ ] T071 [US3] Implement transactional result persistence, unique `job_id`/idempotency handling, latest result pointer update, retry-exhaustion failure mapping, sanitized provider metadata persistence, and state-machine transition enforcement in `services/main/apps/classification/services.py`
+- [ ] T072 [US3] Include latest classification result in user submission responses while omitting raw provider data, secrets, signed URLs, image bytes, and unnecessary personal metadata in `services/main/apps/submissions/serializers.py`
+- [ ] T073 [US3] Wire Celery task discovery, explicit retry count, timeout, backoff, jitter, and cap settings in `services/main/config/settings.py`
 
 **Checkpoint**: User Story 3 completes the async classification loop without exposing the classifier publicly and with safety tests already in place.
 
@@ -169,12 +175,12 @@
 
 ### Tests for User Story 4
 
-- [ ] T074 [P] [US4] Add Django Admin tests for list display, search, filters, detail fields, and classification inline/history behavior in `services/main/apps/submissions/tests/test_admin.py`
+- [ ] T074 [P] [US4] Add Django Admin tests for list display, search, filters, readonly/detail fields, response minimization, and classification inline/history behavior in `services/main/apps/submissions/tests/test_admin.py`
 - [ ] T075 [P] [US4] Add admin permission tests proving non-admin users cannot access Django Admin views in `services/main/apps/submissions/tests/test_admin_permissions.py`
 
 ### Implementation for User Story 4
 
-- [ ] T076 [US4] Register `Submission` and `ClassificationResult` in Django Admin with search, list filters, readonly fields, and history display in `services/main/apps/submissions/admin.py` and `services/main/apps/classification/admin.py`
+- [ ] T076 [US4] Register `Submission` and `ClassificationResult` in Django Admin with search, list filters, readonly fields, minimized sensitive/raw fields, and history display in `services/main/apps/submissions/admin.py` and `services/main/apps/classification/admin.py`
 
 **Checkpoint**: User Story 4 supports operational review through Django Admin.
 
@@ -190,11 +196,11 @@
 
 ### Implementation for User Story 5
 
-- [ ] T077 [US5] Implement classifier-side forbidden field and submission-review-only guardrails in `services/classifier/app/safety.py`
+- [ ] T077 [US5] Implement classifier-side forbidden field, future provider metadata, and submission-review-only guardrails in `services/classifier/app/safety.py`
 - [ ] T078 [US5] Integrate classifier safety guardrails into the `POST /classify` response path in `services/classifier/app/main.py`
-- [ ] T079 [US5] Implement Django-side safety validation for classifier responses before persistence in `services/main/apps/classification/validators.py`
-- [ ] T080 [US5] Restrict worker classifier requests to image bytes plus minimal technical metadata in `services/main/apps/classification/client.py`
-- [ ] T081 [US5] Add safe logging filters and request ID logging without personal data, image bytes, tokens, credentials, or signed URLs in `services/main/apps/core/logging.py` and `services/main/config/settings.py`
+- [ ] T079 [US5] Implement Django-side safety validation for classifier responses, provider metadata, raw responses, and nested provider-specific fields before persistence in `services/main/apps/classification/validators.py`
+- [ ] T080 [US5] Restrict worker classifier requests to image bytes plus allowlisted minimal technical metadata and exclude current or future demographic-like fields in `services/main/apps/classification/client.py`
+- [ ] T081 [US5] Add safe logging filters and request ID logging without personal data, image bytes, tokens, credentials, signed URLs, raw provider responses, or raw prompts in `services/main/apps/core/logging.py` and `services/main/config/settings.py`
 - [ ] T082 [US5] Document enforced implementation safety gates and test commands in `specs/001-photo-classification-platform/checklists/safety.md` without editing original source documents
 
 **Checkpoint**: Safety boundaries are enforced by early tests and runtime validation, not only by documentation.
@@ -208,12 +214,19 @@
 - [ ] T083 [P] Add OpenAPI/docs endpoint availability tests in `tests/contracts/test_openapi_docs.py`
 - [ ] T084 Add API schema and docs endpoint configuration for generated OpenAPI output in `services/main/config/urls.py` and `services/main/config/settings.py`
 - [ ] T085 [P] Create local development and smoke-test instructions aligned with `quickstart.md` in `README.md`
-- [ ] T086 [P] Add Kubernetes manifest validation command/check coverage in `.github/workflows/ci.yml` before creating manifests under `infra/k8s/`
-- [ ] T087 Create Kubernetes manifests for namespace, configmap, secrets placeholders, deployments, services, ingress, and migration job under `infra/k8s/`
-- [ ] T088 [P] Create Docker Compose smoke test script for auth, upload, async worker processing, and admin verification in `scripts/smoke_photo_classification_flow.sh`
+- [ ] T086 [P] Add Kubernetes manifest validation command/check coverage for private classifier, PostgreSQL, RabbitMQ, object storage, and debug console exposure rules in `.github/workflows/ci.yml` before creating manifests under `infra/k8s/`
+- [ ] T087 Create Kubernetes manifests for namespace, configmap, secrets placeholders, deployments, private services, public ingress only for Nginx/Django, and migration job under `infra/k8s/`
+- [ ] T088 [P] Create Docker Compose smoke test script for auth, upload, async worker processing, latest result retrieval, admin verification, duplicate delivery handling, forbidden trait absence, credential-free rule-based classifier mode, and internal-only classifier exposure in `scripts/smoke_photo_classification_flow.sh`
 - [ ] T089 [P] Add database migration check and fixture/factory helpers for CI reliability in `tests/factories.py`
-- [ ] T090 Run the validation path from `specs/001-photo-classification-platform/quickstart.md` and record any command corrections in `README.md`
-- [ ] T091 Run the full CI-equivalent checks from `.github/workflows/ci.yml` and fix failures in the touched implementation files
+- [ ] T090 [P] Add permanent submission deletion, object deletion failure, retention/audit conflict, and worker-racing-with-deleted-submission tests in `services/main/apps/submissions/tests/test_submission_deletion_retention.py` and `services/main/apps/classification/tests/test_worker_deleted_submission.py`
+- [ ] T091 [P] Add provider metadata, raw response, API response, and Django Admin response minimization regression tests in `tests/safety/test_response_data_minimization.py`
+- [ ] T092 [P] Add upload responsiveness and nonblocking classification boundary tests proving submission creation does not synchronously call the classifier in `services/main/apps/submissions/tests/test_submission_responsiveness.py`
+- [ ] T093 [P] Add worker health, queue depth, retry counter, task state, and safe failure observability tests in `services/main/apps/classification/tests/test_worker_observability.py`
+- [ ] T094 Implement permanent deletion and retention orchestration that deletes private photo objects, handles object deletion failures safely, resolves classification-history retention behavior, and skips deleted submissions in worker flows in `services/main/apps/submissions/retention_service.py`, `services/main/apps/submissions/admin.py`, and `services/main/apps/classification/tasks.py`
+- [ ] T095 Implement provider metadata/raw-response sanitizer hardening and API/Admin response minimization for classification output in `services/main/apps/classification/validators.py`, `services/main/apps/classification/services.py`, `services/main/apps/submissions/serializers.py`, and `services/main/apps/classification/admin.py`
+- [ ] T096 Implement worker health and queue/task observability plus upload-path nonblocking instrumentation in `services/main/apps/classification/health.py`, `services/main/apps/core/views.py`, `services/main/apps/submissions/views.py`, and `services/main/config/urls.py`
+- [ ] T097 Run the validation path from `specs/001-photo-classification-platform/quickstart.md` and record any command corrections in `README.md`
+- [ ] T098 Run the full CI-equivalent checks from `.github/workflows/ci.yml`, including safety tests and no-external-model-provider-credential validation, and fix failures in the touched implementation files
 
 ---
 
@@ -228,7 +241,7 @@
 - **User Story 3 (Phase 5)**: Depends on Phase 2 and integrates with User Story 2 submissions; safety tests T058-T061 must be written before classifier and worker implementation tasks T064-T071.
 - **User Story 4 (Phase 6)**: Depends on Phase 2 and is most useful after User Stories 2 and 3.
 - **User Story 5 (Phase 7)**: Depends on Phase 2; tests T058-T061 are intentionally scheduled before User Story 3 implementation and runtime gates T077-T082 must be complete before final demo or implementation approval.
-- **Polish (Phase 8)**: Depends on the selected implemented stories.
+- **Polish (Phase 8)**: Depends on the selected implemented stories; production-readiness closure tests T090-T093 must precede implementation tasks T094-T096, and final validation tasks T097-T098 run last.
 
 ### User Story Dependencies
 
@@ -246,6 +259,7 @@
 - Contracts before endpoint implementation.
 - State-machine, durable outbox, and idempotency tests before related model/service implementation.
 - Safety tests before classifier and worker implementation.
+- Production-readiness closure tests T090-T093 before retention, response-minimization, observability, and responsiveness implementation tasks T094-T096.
 - Story checkpoint validation before moving to the next priority when working sequentially.
 
 ### Parallel Opportunities
@@ -255,7 +269,7 @@
 - FastAPI shell/schema tasks T023 and T025 can run in parallel after T004 creates `services/classifier/`.
 - Tests inside each user story marked `[P]` can be written in parallel after their prerequisite foundation exists: T027-T029, T036-T039, T050-T061, and T074-T075.
 - US5 safety tests T058-T061 can be drafted with US3 tests but must be complete before implementation tasks T064-T071 and T080.
-- Polish tasks T083, T085, T086, T088, and T089 can run in parallel after core paths exist; T084 follows T083 and T087 follows T086.
+- Polish tasks T083, T085, T086, T088, T089, and T090-T093 can run in parallel after core paths exist; T084 follows T083, T087 follows T086, T094-T096 follow their corresponding tests, and T097-T098 run after the implementation tasks they validate.
 
 ---
 
@@ -298,6 +312,15 @@ Task: T060 Add classifier payload minimization tests in tests/safety/test_classi
 Task: T061 Add data exposure safety tests in tests/safety/test_data_exposure.py
 ```
 
+### Production Readiness Closure
+
+```text
+Task: T090 Add deletion, retention, and deleted-submission worker race tests in services/main/apps/submissions/tests/test_submission_deletion_retention.py and services/main/apps/classification/tests/test_worker_deleted_submission.py
+Task: T091 Add provider metadata and response minimization tests in tests/safety/test_response_data_minimization.py
+Task: T092 Add upload responsiveness tests in services/main/apps/submissions/tests/test_submission_responsiveness.py
+Task: T093 Add worker observability tests in services/main/apps/classification/tests/test_worker_observability.py
+```
+
 ---
 
 ## Implementation Strategy
@@ -310,6 +333,7 @@ Task: T061 Add data exposure safety tests in tests/safety/test_data_exposure.py
 4. Add User Story 2 to create authenticated submissions, sanitized private storage, durable outbox rows, and queued jobs.
 5. Add User Story 3 tests and US5 safety tests before implementing classifier and worker logic.
 6. Complete User Story 3 async classification and User Story 5 runtime safety gates before final demo.
+7. Complete Phase 8 production-readiness closure tasks before running quickstart and CI-equivalent validation.
 
 ### Incremental Delivery
 
@@ -319,6 +343,7 @@ Task: T061 Add data exposure safety tests in tests/safety/test_data_exposure.py
 4. US3 ready: queued jobs produce normalized classification results idempotently.
 5. US4 ready: admins can review and filter submissions in Django Admin.
 6. US5 ready: runtime and test safety gates enforce submission-review-only classification.
+7. Production readiness ready: deletion/retention, response minimization, observability, responsiveness, quickstart, and CI gates pass.
 
 ### Suggested First Scope
 
@@ -328,7 +353,7 @@ For the first implementation pass, complete Phases 1-3, then validate the MVP. C
 
 ## Task Summary
 
-- **Total tasks**: 91
+- **Total tasks**: 98
 - **Setup**: 9 tasks
 - **Foundational**: 17 tasks
 - **US1 Register and log in**: 9 tasks
@@ -336,6 +361,6 @@ For the first implementation pass, complete Phases 1-3, then validate the MVP. C
 - **US3 Receive classification**: 20 tasks
 - **US4 Admin review**: 3 tasks
 - **US5 Safety boundaries**: 10 tasks
-- **Polish**: 9 tasks
+- **Polish**: 16 tasks
 
 All implementation tasks preserve the accepted architecture decisions in `research.md` and the source documents under `supporting-docs/` and `decisions/`.
