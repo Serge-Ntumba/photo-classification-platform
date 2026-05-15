@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -13,16 +13,34 @@ RUN apt-get update \
     && groupadd --system app \
     && useradd --system --gid app --home-dir /app app
 
+ARG INSTALL_EXTRAS=main
+
 COPY pyproject.toml ./
 RUN pip install --upgrade pip \
-    && pip install -e ".[main]"
+    && pip install -e ".[${INSTALL_EXTRAS}]"
 
 COPY services/main ./services/main
 
-WORKDIR /app/services/main
+RUN ln -s services/main/manage.py manage.py
+
+WORKDIR /app
 
 USER app
 
 EXPOSE 8000
 
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+
+FROM base AS test
+
+USER root
+
+COPY conftest.py ./conftest.py
+COPY tests ./tests
+
+RUN mkdir -p /app/.pytest_cache /app/.ruff_cache \
+    && chown -R app:app /app/.pytest_cache /app/.ruff_cache
+
+USER app
+
+FROM base AS runtime

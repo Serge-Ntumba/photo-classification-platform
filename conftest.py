@@ -16,19 +16,19 @@ for path in (MAIN_SERVICE, CLASSIFIER_SERVICE):
         sys.path.insert(0, path_text)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-os.environ.setdefault("DJANGO_SECRET_KEY", "test-secret-key")
-os.environ.setdefault("DJANGO_DEBUG", "false")
-os.environ.setdefault("CELERY_TASK_ALWAYS_EAGER", "true")
-os.environ.setdefault("CELERY_TASK_EAGER_PROPAGATES", "true")
+os.environ["DJANGO_SECRET_KEY"] = "test-secret-key-with-at-least-32-bytes"  # noqa: S105
+os.environ["JWT_SIGNING_KEY"] = "test-jwt-signing-key-with-at-least-32-bytes"  # noqa: S105
+os.environ["DJANGO_DEBUG"] = "false"
+os.environ["CELERY_TASK_ALWAYS_EAGER"] = "true"
+os.environ["CELERY_TASK_EAGER_PROPAGATES"] = "true"
 os.environ.setdefault("CLASSIFIER_PROVIDER", "rule_based")
 os.environ.setdefault("MODEL_PROVIDER_API_KEY", "")
 
 
 @pytest.fixture
 def fastapi_client():
-    from fastapi.testclient import TestClient
-
     from app.main import app
+    from fastapi.testclient import TestClient
 
     return TestClient(app)
 
