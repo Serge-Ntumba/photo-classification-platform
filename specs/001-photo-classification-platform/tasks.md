@@ -198,12 +198,12 @@
 
 ### Implementation for User Story 5
 
-- [ ] T077 [US5] Implement classifier-side forbidden field, future provider metadata, and submission-review-only guardrails in `services/classifier/app/safety.py`
-- [ ] T078 [US5] Integrate classifier safety guardrails into the `POST /classify` response path in `services/classifier/app/main.py`
-- [ ] T079 [US5] Implement Django-side safety validation for classifier responses, provider metadata, raw responses, and nested provider-specific fields before persistence in `services/main/apps/classification/validators.py`
-- [ ] T080 [US5] Restrict worker classifier requests to image bytes plus allowlisted minimal technical metadata and exclude current or future demographic-like fields in `services/main/apps/classification/client.py`
-- [ ] T081 [US5] Add safe logging filters and request ID logging without personal data, image bytes, tokens, credentials, signed URLs, raw provider responses, or raw prompts in `services/main/apps/core/logging.py` and `services/main/config/settings.py`
-- [ ] T082 [US5] Document enforced implementation safety gates and test commands in `specs/001-photo-classification-platform/checklists/safety.md` without editing original source documents
+- [X] T077 [US5] Implement classifier-side forbidden field, future provider metadata, and submission-review-only guardrails in `services/classifier/app/safety.py`
+- [X] T078 [US5] Integrate classifier safety guardrails into the `POST /classify` response path in `services/classifier/app/main.py`
+- [X] T079 [US5] Implement Django-side safety validation for classifier responses, provider metadata, raw responses, and nested provider-specific fields before persistence in `services/main/apps/classification/validators.py`
+- [X] T080 [US5] Restrict worker classifier requests to image bytes plus allowlisted minimal technical metadata and exclude current or future demographic-like fields in `services/main/apps/classification/client.py`
+- [X] T081 [US5] Add safe logging filters and request ID logging without personal data, image bytes, tokens, credentials, signed URLs, raw provider responses, or raw prompts in `services/main/apps/core/logging.py` and `services/main/config/settings.py`
+- [X] T082 [US5] Document enforced implementation safety gates and test commands in `specs/001-photo-classification-platform/checklists/safety.md` without editing original source documents
 
 **Checkpoint**: Safety boundaries are enforced by early tests and runtime validation, not only by documentation.
 

@@ -5,9 +5,10 @@ from __future__ import annotations
 import os
 from typing import Annotated
 
-from fastapi import FastAPI, File, Form, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
 from .providers import classify_with_configured_provider
+from .safety import ClassifierSafetyError, validate_classifier_response_safety
 from .schemas import ClassifierHealthResponse, ClassifierRequestMetadata, ClassifierResponse
 
 app = FastAPI(
@@ -43,4 +44,12 @@ async def classify(
         size_bytes=size_bytes,
         metadata_complete=metadata_complete,
     )
-    return classify_with_configured_provider(image_bytes=image_bytes, metadata=metadata)
+    response = classify_with_configured_provider(image_bytes=image_bytes, metadata=metadata)
+    try:
+        validate_classifier_response_safety(response)
+    except ClassifierSafetyError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Classifier response failed safety validation.",
+        ) from exc
+    return response

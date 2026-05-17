@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import logging
+import sys
 
 import pytest
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 
@@ -21,6 +23,14 @@ from apps.classification.tests.factories import classifier_response, make_job, m
 from apps.classification.validators import (
     ClassifierResponseValidationError,
     validate_classifier_response,
+)
+from apps.core.logging import (
+    RESPONSE_REQUEST_ID_HEADER,
+    RequestIdMiddleware,
+    SafeFormatter,
+    SafeLogFilter,
+    reset_request_id,
+    set_request_id,
 )
 
 pytestmark = pytest.mark.django_db
@@ -129,6 +139,64 @@ def test_sensitive_raw_response_value_is_rejected_before_storage_without_logging
     assert ClassificationResult.objects.count() == 0
     assert job.submission.latest_classification_result_id is None
     assert unsafe_value not in caplog.text
+
+
+def test_safe_log_filter_redacts_sensitive_values_and_attaches_request_id() -> None:
+    record = logging.LogRecord(
+        name="safety-test",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=1,
+        msg=(
+            "token=secret-token signed_url=https://example.test/photo?X-Amz-Signature=abc "
+            "raw prompt: classify name: Alex"
+        ),
+        args=(),
+        exc_info=None,
+    )
+    token = set_request_id("req-test-123")
+    try:
+        assert SafeLogFilter().filter(record) is True
+    finally:
+        reset_request_id(token)
+
+    redacted = record.getMessage()
+    assert record.request_id == "req-test-123"
+    assert "secret-token" not in redacted
+    assert "X-Amz-Signature=abc" not in redacted
+    assert "raw prompt" not in redacted.lower()
+    assert "Alex" not in redacted
+
+
+def test_safe_formatter_redacts_exception_text() -> None:
+    try:
+        raise RuntimeError("password=secret-token")
+    except RuntimeError:
+        record = logging.LogRecord(
+            name="safety-test",
+            level=logging.ERROR,
+            pathname=__file__,
+            lineno=1,
+            msg="classification failed",
+            args=(),
+            exc_info=sys.exc_info(),
+        )
+
+    formatted = SafeFormatter("%(message)s").format(record)
+
+    assert "secret-token" not in formatted
+    assert "password=" not in formatted
+
+
+def test_request_id_middleware_sets_safe_response_header(rf) -> None:
+    def get_response(request):
+        assert request.request_id == "req-test-123"
+        return HttpResponse("ok")
+
+    request = rf.get("/health", HTTP_X_REQUEST_ID="req-test-123")
+    response = RequestIdMiddleware(get_response)(request)
+
+    assert response[RESPONSE_REQUEST_ID_HEADER] == "req-test-123"
 
 
 def test_user_submission_api_omits_raw_provider_data_and_image_bytes(api_client) -> None:

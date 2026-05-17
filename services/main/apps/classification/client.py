@@ -17,6 +17,14 @@ SAFE_CLASSIFIER_FILENAMES = {
     "image/png": "photo.png",
     "image/webp": "photo.webp",
 }
+ALLOWED_CLASSIFIER_DATA_FIELDS = frozenset(
+    {
+        "submission_id",
+        "content_type",
+        "size_bytes",
+        "metadata_complete",
+    },
+)
 
 
 def safe_classifier_filename(content_type: str) -> str:
@@ -29,6 +37,14 @@ def build_classifier_request(
     submission,
     image_bytes: bytes,
 ) -> dict[str, Any]:
+    data = {
+        "submission_id": str(submission.id),
+        "content_type": submission.photo_content_type,
+        "size_bytes": str(len(image_bytes)),
+        "metadata_complete": "true",
+    }
+    if set(data) != ALLOWED_CLASSIFIER_DATA_FIELDS:
+        raise ClassifierClientError("Classifier request metadata was not allowlisted.")
     return {
         "files": {
             "file": (
@@ -37,12 +53,7 @@ def build_classifier_request(
                 submission.photo_content_type,
             ),
         },
-        "data": {
-            "submission_id": str(submission.id),
-            "content_type": submission.photo_content_type,
-            "size_bytes": str(len(image_bytes)),
-            "metadata_complete": "true",
-        },
+        "data": data,
     }
 
 
