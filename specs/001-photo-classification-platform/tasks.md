@@ -177,12 +177,12 @@
 
 ### Tests for User Story 4
 
-- [ ] T074 [P] [US4] Add Django Admin tests for list display, search, filters, readonly/detail fields, response minimization, and classification inline/history behavior in `services/main/apps/submissions/tests/test_admin.py`
-- [ ] T075 [P] [US4] Add admin permission tests proving non-admin users cannot access Django Admin views in `services/main/apps/submissions/tests/test_admin_permissions.py`
+- [X] T074 [P] [US4] Add Django Admin tests for list display, search, filters, readonly/detail fields, response minimization, and classification inline/history behavior in `services/main/apps/submissions/tests/test_admin.py`
+- [X] T075 [P] [US4] Add admin permission tests proving non-admin users cannot access Django Admin views in `services/main/apps/submissions/tests/test_admin_permissions.py`
 
 ### Implementation for User Story 4
 
-- [ ] T076 [US4] Register `Submission` and `ClassificationResult` in Django Admin with search, list filters, readonly fields, minimized sensitive/raw fields, and history display in `services/main/apps/submissions/admin.py` and `services/main/apps/classification/admin.py`
+- [X] T076 [US4] Register `Submission` and `ClassificationResult` in Django Admin with search, list filters, readonly fields, minimized sensitive/raw fields, and history display in `services/main/apps/submissions/admin.py` and `services/main/apps/classification/admin.py`
 
 **Checkpoint**: User Story 4 supports operational review through Django Admin.
 
