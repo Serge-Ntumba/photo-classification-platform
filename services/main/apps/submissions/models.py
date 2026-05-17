@@ -41,6 +41,13 @@ class Submission(models.Model):
         choices=[(status, status) for status in SUBMISSION_STATUSES],
         default=SUBMISSION_STATUS_PENDING_CLASSIFICATION,
     )
+    latest_classification_result = models.ForeignKey(
+        "classification.ClassificationResult",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
     classified_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
@@ -54,6 +61,10 @@ class Submission(models.Model):
             models.Index(fields=["place_of_living"], name="submission_place_idx"),
             models.Index(fields=["country_of_origin"], name="submission_country_idx"),
             models.Index(fields=["status"], name="submission_status_idx"),
+            models.Index(
+                fields=["latest_classification_result"],
+                name="submission_latest_result_idx",
+            ),
             models.Index(fields=["created_at"], name="submission_created_idx"),
             models.Index(fields=["updated_at"], name="submission_updated_idx"),
             models.Index(fields=["created_at", "status"], name="submission_created_status_idx"),

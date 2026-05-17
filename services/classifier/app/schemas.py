@@ -46,7 +46,7 @@ class ClassifierRequestMetadata(BaseModel):
 
     submission_id: str
     content_type: str
-    size_bytes: int = Field(ge=1, le=5 * 1024 * 1024)
+    size_bytes: int = Field(ge=0)
     metadata_complete: bool
 
 
@@ -72,3 +72,4 @@ class ClassifierResponse(BaseModel):
     confidence_score: float | None = Field(default=None, ge=0.0, le=1.0)
     classification_duration_ms: int | None = Field(default=None, ge=0)
     fallback_reason: str | None = None
+    provider_metadata: dict[str, object] | None = None

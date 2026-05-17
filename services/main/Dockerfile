@@ -37,6 +37,7 @@ USER root
 
 COPY conftest.py ./conftest.py
 COPY tests ./tests
+COPY services/classifier ./services/classifier
 
 RUN mkdir -p /app/.pytest_cache /app/.ruff_cache \
     && chown -R app:app /app/.pytest_cache /app/.ruff_cache

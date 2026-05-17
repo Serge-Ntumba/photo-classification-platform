@@ -17,7 +17,7 @@ services:
       dockerfile: services/main/Dockerfile
       target: test
       args:
-        INSTALL_EXTRAS: main,dev
+        INSTALL_EXTRAS: main,dev,classifier
     env_file:
       - path: .env.example
       - path: .env
@@ -50,7 +50,7 @@ services:
         condition: service_completed_successfully
       classifier:
         condition: service_started
-    command: celery -A config worker --loglevel=INFO
+    command: celery -A config worker --loglevel=INFO -Q classification,default
     networks:
       - internal
 

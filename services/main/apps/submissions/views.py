@@ -46,7 +46,11 @@ class SubmissionViewSet(
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Submission.objects.none()
-        return Submission.objects.filter(user=self.request.user).order_by("-created_at")
+        return (
+            Submission.objects.filter(user=self.request.user)
+            .select_related("latest_classification_result")
+            .order_by("-created_at")
+        )
 
     def get_serializer_class(self):
         if self.action == "create":

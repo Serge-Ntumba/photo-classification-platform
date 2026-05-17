@@ -202,6 +202,7 @@ CLASSIFIER_MAX_RETRIES = env_int("CLASSIFIER_MAX_RETRIES", 3)
 RABBITMQ_PUBLISH_MAX_ATTEMPTS = env_int("RABBITMQ_PUBLISH_MAX_ATTEMPTS", 3)
 RETRY_BACKOFF_BASE_SECONDS = env_int("RETRY_BACKOFF_BASE_SECONDS", 2)
 RETRY_BACKOFF_CAP_SECONDS = env_int("RETRY_BACKOFF_CAP_SECONDS", 60)
+RETRY_BACKOFF_JITTER = env_bool("RETRY_BACKOFF_JITTER", True)
 
 CELERY_BROKER_URL = os.getenv(
     "CELERY_BROKER_URL",
@@ -211,8 +212,16 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "rpc://")
 CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", False)
 CELERY_TASK_EAGER_PROPAGATES = env_bool("CELERY_TASK_EAGER_PROPAGATES", True)
 CELERY_TASK_ROUTES = {
+    "apps.classification.tasks.process_classification_job": {"queue": "classification"},
     "apps.classification.tasks.*": {"queue": "classification"},
 }
 CELERY_TASK_DEFAULT_QUEUE = "default"
 CELERY_TASK_TIME_LIMIT = CLASSIFIER_TIMEOUT_SECONDS + 10
 CELERY_TASK_SOFT_TIME_LIMIT = CLASSIFIER_TIMEOUT_SECONDS + 5
+CELERY_TASK_ANNOTATIONS = {
+    "apps.classification.tasks.process_classification_job": {
+        "max_retries": CLASSIFIER_MAX_RETRIES,
+        "time_limit": CELERY_TASK_TIME_LIMIT,
+        "soft_time_limit": CELERY_TASK_SOFT_TIME_LIMIT,
+    },
+}

@@ -12,6 +12,28 @@ from apps.core.images import ImageValidationError, NormalizedImage, validate_and
 from .models import Submission
 
 
+class SubmissionClassificationSerializer(serializers.Serializer):
+    classification_type = serializers.CharField(read_only=True)
+    category = serializers.CharField(read_only=True)
+    review_decision = serializers.CharField(read_only=True)
+    score = serializers.FloatField(read_only=True, allow_null=True)
+    confidence_score = serializers.FloatField(read_only=True, allow_null=True)
+    reasons = serializers.ListField(child=serializers.CharField(), read_only=True)
+    provider = serializers.CharField(read_only=True)
+    classifier_version = serializers.CharField(read_only=True)
+    schema_version = serializers.CharField(read_only=True)
+    photo_type = serializers.CharField(read_only=True, allow_blank=True)
+    image_quality = serializers.CharField(read_only=True, allow_blank=True)
+    technical_status = serializers.CharField(read_only=True, allow_blank=True)
+    content_safety_status = serializers.CharField(read_only=True, allow_blank=True)
+    profile_suitability = serializers.CharField(read_only=True, allow_blank=True)
+    is_fallback = serializers.BooleanField(read_only=True)
+    fallback_reason = serializers.CharField(read_only=True, allow_blank=True)
+    error_code = serializers.CharField(read_only=True, allow_blank=True)
+    classified_at = serializers.DateTimeField(read_only=True)
+    classification_duration_ms = serializers.IntegerField(read_only=True, allow_null=True)
+
+
 class SubmissionPhotoReferenceSerializer(serializers.Serializer):
     object_key = serializers.CharField(source="photo_object_key", read_only=True)
     original_filename = serializers.CharField(source="photo_original_filename", read_only=True)
@@ -41,9 +63,12 @@ class SubmissionReadSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_classification(self, _obj: Submission) -> None:
-        return None
+    @extend_schema_field(SubmissionClassificationSerializer(allow_null=True))
+    def get_classification(self, obj: Submission) -> dict[str, Any] | None:
+        result = getattr(obj, "latest_classification_result", None)
+        if result is None:
+            return None
+        return SubmissionClassificationSerializer(result).data
 
 
 class SubmissionCreateSerializer(serializers.Serializer):

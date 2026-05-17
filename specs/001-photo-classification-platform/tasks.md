@@ -132,36 +132,38 @@
 
 ### Tests for User Story 3
 
-- [ ] T050 [P] [US3] Add classifier API contract tests for `POST /classify` and allowed response schema in `tests/contracts/test_classifier_api.py`
-- [ ] T051 [P] [US3] Add deterministic rule-based classifier tests for supported JPEG/PNG/WebP images, empty files, files over 5 MB, images outside 300x300 through 5000x5000 pixels inclusive, invalid files, unsupported types, incomplete metadata, and category priority in `services/classifier/tests/test_rule_based_classifier.py`
-- [ ] T052 [P] [US3] Add Celery worker integration tests for successful classification processing in `services/main/apps/classification/tests/test_worker_success.py`
-- [ ] T053 [P] [US3] Add worker retry, timeout, malformed response, missing object, deleted-submission race, terminal-submission skip, retry-exhaustion failure, and duplicate delivery tests in `services/main/apps/classification/tests/test_worker_failures.py`
-- [ ] T054 [P] [US3] Add status mapping and latest-result persistence tests in `services/main/apps/classification/tests/test_status_mapping.py`
-- [ ] T055 [P] [US3] Add persisted idempotency tests proving duplicate `job_id` delivery does not create duplicate `ClassificationResult` rows or advance the latest pointer twice in `services/main/apps/classification/tests/test_worker_idempotency.py`
-- [ ] T056 [P] [US3] Add provider selection and rule-based fallback tests in `services/classifier/tests/test_providers.py`
-- [ ] T057 [P] [US3] Add Celery routing, retry count, classifier timeout, backoff, jitter, and cap configuration tests in `services/main/apps/classification/tests/test_celery_config.py`
+- [X] T050 [P] [US3] Add classifier API contract tests for `POST /classify` and allowed response schema in `tests/contracts/test_classifier_api.py`
+- [X] T051 [P] [US3] Add deterministic rule-based classifier tests for supported JPEG/PNG/WebP images, empty files, files over 5 MB, images outside 300x300 through 5000x5000 pixels inclusive, invalid files, unsupported types, incomplete metadata, and category priority in `services/classifier/tests/test_rule_based_classifier.py`
+- [X] T052 [P] [US3] Add Celery worker integration tests for successful classification processing in `services/main/apps/classification/tests/test_worker_success.py`
+- [X] T053 [P] [US3] Add worker retry, timeout, malformed response, missing object, deleted-submission race, terminal-submission skip, retry-exhaustion failure, and duplicate delivery tests in `services/main/apps/classification/tests/test_worker_failures.py`
+- [X] T054 [P] [US3] Add status mapping and latest-result persistence tests in `services/main/apps/classification/tests/test_status_mapping.py`
+- [X] T055 [P] [US3] Add persisted idempotency tests proving duplicate `job_id` delivery does not create duplicate `ClassificationResult` rows or advance the latest pointer twice in `services/main/apps/classification/tests/test_worker_idempotency.py`
+- [X] T056 [P] [US3] Add provider selection and rule-based fallback tests in `services/classifier/tests/test_providers.py`
+- [X] T057 [P] [US3] Add Celery routing, retry count, classifier timeout, backoff, jitter, and cap configuration tests in `services/main/apps/classification/tests/test_celery_config.py`
 
 ### Cross-Cutting Safety Tests Required Before User Story 3 Implementation
 
-- [ ] T058 [P] [US5] Add safety tests rejecting forbidden inferred trait fields in classifier output, provider metadata, raw responses, and nested provider-specific structures in `tests/safety/test_forbidden_trait_outputs.py`
-- [ ] T059 [P] [US5] Add demographic invariance tests proving current and future demographic-like fields do not affect category, decision, score, priority, quality, safety, suitability, or pass/fail outcomes in `tests/safety/test_demographic_invariance.py`
-- [ ] T060 [P] [US5] Add worker-to-classifier payload tests proving unnecessary current and future demographic-like metadata, tokens, secrets, object storage credentials, and user/session identifiers are not sent in `tests/safety/test_classifier_payload_minimization.py`
-- [ ] T061 [P] [US5] Add storage, API/admin response, raw-response, and logging safety tests for image bytes, signed URLs, passwords, tokens, secrets, raw prompts, provider raw data, and personal metadata in `tests/safety/test_data_exposure.py`
+- [X] T058 [P] [US5] Add safety tests rejecting forbidden inferred trait fields in classifier output, provider metadata, raw responses, and nested provider-specific structures in `tests/safety/test_forbidden_trait_outputs.py`
+- [X] T059 [P] [US5] Add demographic invariance tests proving current and future demographic-like fields do not affect category, decision, score, priority, quality, safety, suitability, or pass/fail outcomes in `tests/safety/test_demographic_invariance.py`
+- [X] T060 [P] [US5] Add worker-to-classifier payload tests proving unnecessary current and future demographic-like metadata, tokens, secrets, object storage credentials, and user/session identifiers are not sent in `tests/safety/test_classifier_payload_minimization.py`
+- [X] T061 [P] [US5] Add storage, API/admin response, raw-response, and logging safety tests for image bytes, signed URLs, passwords, tokens, secrets, raw prompts, provider raw data, and personal metadata in `tests/safety/test_data_exposure.py`
+
+> Phase 5 scope note: T061 covers storage, user API response, raw-response, and logging safety for implemented Phase 5 surfaces. Django Admin response minimization remains deferred to T074/T076 and T091/T095 because Django Admin classification views are not implemented until later phases.
 
 ### Implementation for User Story 3
 
-- [ ] T062 [US3] Implement `ClassificationResult` model with persisted `job_id` uniqueness/idempotency fields, sanitized `provider_metadata`/`raw_response` fields, and latest result relationship fields in `services/main/apps/classification/models.py` and `services/main/apps/submissions/models.py`
-- [ ] T063 [US3] Create classification result and submission latest-pointer migrations in `services/main/apps/classification/migrations/0002_classification_result.py` and `services/main/apps/submissions/migrations/0002_latest_classification.py`
-- [ ] T064 [US3] Implement classifier Pydantic request/response models, enums, and validation rules in `services/classifier/app/schemas.py`
-- [ ] T065 [US3] Implement deterministic rule-based submission-review classifier logic with exact limits for JPEG/PNG/WebP support, non-empty files up to 5 MB, image dimensions from 300x300 through 5000x5000 pixels inclusive, incomplete metadata handling, and safe category priority in `services/classifier/app/rules.py`
-- [ ] T066 [US3] Implement internal `POST /classify` endpoint using multipart image input and minimal technical metadata in `services/classifier/app/main.py`
-- [ ] T067 [US3] Implement classifier provider selection and rule-based fallback behavior in `services/classifier/app/providers.py`
-- [ ] T068 [US3] Implement Django worker client for calling the internal classifier with configured timeout handling and minimal allowed technical metadata in `services/main/apps/classification/client.py`
-- [ ] T069 [US3] Implement Celery classification task with durable job loading, row-level claim/lock behavior, submission loading, `pending_classification -> classifying` transition, object storage fetch, classifier call, configured retry policy, deleted-submission handling, terminal-state skip, and duplicate-delivery checks in `services/main/apps/classification/tasks.py`
-- [ ] T070 [US3] Implement classifier response validation before persistence, including forbidden nested provider fields and sanitized `provider_metadata`/`raw_response` rules, in `services/main/apps/classification/validators.py`
-- [ ] T071 [US3] Implement transactional result persistence, unique `job_id`/idempotency handling, latest result pointer update, retry-exhaustion failure mapping, sanitized provider metadata persistence, and state-machine transition enforcement in `services/main/apps/classification/services.py`
-- [ ] T072 [US3] Include latest classification result in user submission responses while omitting raw provider data, secrets, signed URLs, image bytes, and unnecessary personal metadata in `services/main/apps/submissions/serializers.py`
-- [ ] T073 [US3] Wire Celery task discovery, explicit retry count, timeout, backoff, jitter, and cap settings in `services/main/config/settings.py`
+- [X] T062 [US3] Implement `ClassificationResult` model with persisted `job_id` uniqueness/idempotency fields, sanitized `provider_metadata`/`raw_response` fields, and latest result relationship fields in `services/main/apps/classification/models.py` and `services/main/apps/submissions/models.py`
+- [X] T063 [US3] Create classification result and submission latest-pointer migrations in `services/main/apps/classification/migrations/0002_classification_result.py` and `services/main/apps/submissions/migrations/0002_latest_classification.py`
+- [X] T064 [US3] Implement classifier Pydantic request/response models, enums, and validation rules in `services/classifier/app/schemas.py`
+- [X] T065 [US3] Implement deterministic rule-based submission-review classifier logic with exact limits for JPEG/PNG/WebP support, non-empty files up to 5 MB, image dimensions from 300x300 through 5000x5000 pixels inclusive, incomplete metadata handling, and safe category priority in `services/classifier/app/rules.py`
+- [X] T066 [US3] Implement internal `POST /classify` endpoint using multipart image input and minimal technical metadata in `services/classifier/app/main.py`
+- [X] T067 [US3] Implement classifier provider selection and rule-based fallback behavior in `services/classifier/app/providers.py`
+- [X] T068 [US3] Implement Django worker client for calling the internal classifier with configured timeout handling and minimal allowed technical metadata in `services/main/apps/classification/client.py`
+- [X] T069 [US3] Implement Celery classification task with durable job loading, row-level claim/lock behavior, submission loading, `pending_classification -> classifying` transition, object storage fetch, classifier call, configured retry policy, deleted-submission handling, terminal-state skip, and duplicate-delivery checks in `services/main/apps/classification/tasks.py`
+- [X] T070 [US3] Implement classifier response validation before persistence, including forbidden nested provider fields and sanitized `provider_metadata`/`raw_response` rules, in `services/main/apps/classification/validators.py`
+- [X] T071 [US3] Implement transactional result persistence, unique `job_id`/idempotency handling, latest result pointer update, retry-exhaustion failure mapping, sanitized provider metadata persistence, and state-machine transition enforcement in `services/main/apps/classification/services.py`
+- [X] T072 [US3] Include latest classification result in user submission responses while omitting raw provider data, secrets, signed URLs, image bytes, and unnecessary personal metadata in `services/main/apps/submissions/serializers.py`
+- [X] T073 [US3] Wire Celery task discovery, explicit retry count, timeout, backoff, jitter, and cap settings in `services/main/config/settings.py`
 
 **Checkpoint**: User Story 3 completes the async classification loop without exposing the classifier publicly and with safety tests already in place.
 

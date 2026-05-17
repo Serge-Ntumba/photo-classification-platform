@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import os
+from typing import Annotated
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, Form, UploadFile
 
-from .schemas import ClassifierHealthResponse
+from .providers import classify_with_configured_provider
+from .schemas import ClassifierHealthResponse, ClassifierRequestMetadata, ClassifierResponse
 
 app = FastAPI(
     title="Photo Classification Service",
@@ -24,3 +26,21 @@ def health() -> ClassifierHealthResponse:
         provider=os.getenv("CLASSIFIER_PROVIDER", "rule_based"),
         version="rules-v1",
     )
+
+
+@app.post("/classify", response_model=ClassifierResponse)
+async def classify(
+    file: Annotated[UploadFile, File()],
+    submission_id: Annotated[str, Form()],
+    content_type: Annotated[str, Form()],
+    size_bytes: Annotated[int, Form()],
+    metadata_complete: Annotated[bool, Form()],
+) -> ClassifierResponse:
+    image_bytes = await file.read()
+    metadata = ClassifierRequestMetadata(
+        submission_id=submission_id,
+        content_type=content_type,
+        size_bytes=size_bytes,
+        metadata_complete=metadata_complete,
+    )
+    return classify_with_configured_provider(image_bytes=image_bytes, metadata=metadata)
