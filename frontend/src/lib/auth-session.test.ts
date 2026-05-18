@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   AUTH_SESSION_STORAGE_KEY,
   clearAuthSession,
+  registerProtectedStateCleanup,
   readAuthSession,
   saveSessionFromLogin,
   subscribeToSessionMessages,
@@ -93,5 +94,16 @@ describe("auth session storage", () => {
     );
 
     unsubscribe();
+  });
+
+  it("runs protected local-state cleanup hooks on sign-out", () => {
+    const cleanup = vi.fn();
+    const unregister = registerProtectedStateCleanup(cleanup);
+    saveSessionFromLogin({ access: "access-token", refresh: "ignored", user });
+
+    clearAuthSession("signed_out");
+
+    expect(cleanup).toHaveBeenCalledTimes(1);
+    unregister();
   });
 });

@@ -11,11 +11,13 @@ import {
 import { createApiClient } from "@/lib/api-client";
 import {
   clearAuthSession,
+  clearProtectedBrowserState,
   getStoredAccessToken,
   readAuthSession,
+  saveAuthSession,
   subscribeToSessionMessages,
 } from "@/lib/auth-session";
-import type { AuthSession } from "@/lib/models";
+import type { AuthSession, AuthenticatedUser } from "@/lib/models";
 
 type ApiClient = ReturnType<typeof createApiClient>;
 
@@ -25,6 +27,8 @@ type SessionContextValue = {
   protectedDataVersion: number;
   expireSession: () => void;
   signOut: () => void;
+  setAuthenticatedSession: (accessToken: string, user: AuthenticatedUser) => void;
+  updateAuthenticatedUser: (user: AuthenticatedUser) => void;
 };
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -58,15 +62,35 @@ export function AppProviders({ children }: { children: ReactNode }) {
     clearProtectedData();
   }, [clearProtectedData]);
 
+  const setAuthenticatedSession = useCallback(
+    (accessToken: string, user: AuthenticatedUser) => {
+      saveAuthSession(accessToken, user);
+      setSession(readAuthSession());
+      clearProtectedData();
+    },
+    [clearProtectedData],
+  );
+
+  const updateAuthenticatedUser = useCallback((user: AuthenticatedUser) => {
+    const accessToken = getStoredAccessToken();
+    if (!accessToken) {
+      return;
+    }
+    saveAuthSession(accessToken, user);
+    setSession(readAuthSession());
+  }, []);
+
   useEffect(() => {
     return subscribeToSessionMessages((message) => {
       if (message.type === "session_updated") {
         setSession(readAuthSession());
       } else if (message.type === "session_expired") {
         setSession(expiredSession());
+        clearProtectedBrowserState();
         clearProtectedData();
       } else if (message.type === "signed_out") {
         setSession(readAuthSession());
+        clearProtectedBrowserState();
         clearProtectedData();
       }
     });
@@ -88,8 +112,18 @@ export function AppProviders({ children }: { children: ReactNode }) {
       protectedDataVersion,
       expireSession,
       signOut,
+      setAuthenticatedSession,
+      updateAuthenticatedUser,
     }),
-    [apiClient, expireSession, protectedDataVersion, session, signOut],
+    [
+      apiClient,
+      expireSession,
+      protectedDataVersion,
+      session,
+      setAuthenticatedSession,
+      signOut,
+      updateAuthenticatedUser,
+    ],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

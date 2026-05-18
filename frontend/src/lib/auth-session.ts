@@ -16,6 +16,8 @@ const ANONYMOUS_SESSION: AuthSession = {
   lastVerifiedAt: null,
 };
 
+const protectedStateCleanups = new Set<() => void>();
+
 function nowIso() {
   return new Date().toISOString();
 }
@@ -84,7 +86,22 @@ export function clearAuthSession(
   reason: "signed_out" | "session_expired" = "signed_out",
 ) {
   sessionStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+  clearProtectedBrowserState();
   broadcastSessionMessage({ type: reason, at: nowIso() });
+}
+
+export function registerProtectedStateCleanup(cleanup: () => void) {
+  protectedStateCleanups.add(cleanup);
+
+  return () => {
+    protectedStateCleanups.delete(cleanup);
+  };
+}
+
+export function clearProtectedBrowserState() {
+  for (const cleanup of protectedStateCleanups) {
+    cleanup();
+  }
 }
 
 export function subscribeToSessionMessages(

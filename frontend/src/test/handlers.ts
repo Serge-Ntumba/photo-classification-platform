@@ -29,6 +29,27 @@ export const mockSubmission = {
 };
 
 export const handlers = [
+  http.post(`${apiBaseUrl}/auth/register/`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+
+    return HttpResponse.json(
+      {
+        id: "user-1",
+        email: body.email,
+        username: body.username,
+        is_staff: false,
+        created_at: "2026-05-18T10:00:00Z",
+      },
+      { status: 201 },
+    );
+  }),
+  http.post(`${apiBaseUrl}/auth/login/`, () =>
+    HttpResponse.json({
+      access: "access-token",
+      refresh: "refresh-token",
+      user: mockCurrentUser,
+    }),
+  ),
   http.get(`${apiBaseUrl}/auth/me/`, () => HttpResponse.json(mockCurrentUser)),
   http.get(`${apiBaseUrl}/submissions/`, () =>
     HttpResponse.json({
