@@ -31,6 +31,16 @@ postgres-data/
 rabbitmq-data/
 minio-data/
 
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/coverage/
+frontend/test-results/
+frontend/test-results
+frontend/playwright-report/
+frontend/playwright-report
+
 # OS / editor
 .DS_Store
 Thumbs.db

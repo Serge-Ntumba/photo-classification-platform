@@ -18,16 +18,16 @@
 
 **Purpose**: Create the React + TypeScript frontend project and baseline tooling.
 
-- [ ] T001 Create the Vite React TypeScript application shell in `frontend/package.json`, `frontend/index.html`, `frontend/src/main.tsx`, and `frontend/src/app/App.tsx`; Depends: none; Validate: `test -f frontend/package.json && test -f frontend/src/main.tsx`
-- [ ] T002 Configure TypeScript, Vite path aliases, local `/api/` proxying, and Vite env typing in `frontend/tsconfig.json`, `frontend/tsconfig.app.json`, `frontend/vite.config.ts`, and `frontend/src/vite-env.d.ts`; Depends: T001; Validate: `cd frontend && npm run typecheck` after T010
-- [ ] T003 [P] Configure Tailwind CSS and shadcn/ui base settings in `frontend/tailwind.config.ts`, `frontend/postcss.config.js`, `frontend/components.json`, and `frontend/src/index.css`; Depends: T001; Validate: `cd frontend && npm run build` after T010
-- [ ] T004 [P] Add shadcn/ui form primitives in `frontend/src/components/ui/button.tsx`, `frontend/src/components/ui/input.tsx`, `frontend/src/components/ui/label.tsx`, `frontend/src/components/ui/form.tsx`, `frontend/src/components/ui/select.tsx`, and `frontend/src/components/ui/textarea.tsx`; Depends: T003; Validate: `cd frontend && npm run typecheck` after T010
-- [ ] T005 [P] Add shadcn/ui feedback and navigation primitives in `frontend/src/components/ui/alert.tsx`, `frontend/src/components/ui/badge.tsx`, `frontend/src/components/ui/pagination.tsx`, and `frontend/src/components/ui/separator.tsx`; Depends: T003; Validate: `cd frontend && npm run typecheck` after T010
-- [ ] T006 Configure the unit/component/browser test harness in `frontend/vitest.config.ts`, `frontend/playwright.config.ts`, `frontend/src/test/setup.ts`, and `frontend/src/test/server.ts`; Depends: T001; Validate: `cd frontend && npm run test -- --run` after T010
-- [ ] T007 [P] Configure frontend linting and formatting in `frontend/eslint.config.js`, `frontend/.prettierrc.json`, and `frontend/.prettierignore`; Depends: T001; Validate: `cd frontend && npm run lint && npm run format:check` after T010
-- [ ] T008 [P] Add frontend dependency, build, and browser-test artifacts to `.gitignore`; Depends: T001; Validate: `git check-ignore frontend/node_modules frontend/dist frontend/test-results`
-- [ ] T009 [P] Document frontend commands and backend prerequisites in `frontend/README.md`; Depends: T001; Validate: `rg "npm run dev|docker compose|VITE_API_BASE_URL" frontend/README.md`
-- [ ] T010 Install and pin frontend dependencies in `frontend/package-lock.json`; Depends: T001-T007; Validate: `cd frontend && npm ci`
+- [X] T001 Create the Vite React TypeScript application shell in `frontend/package.json`, `frontend/index.html`, `frontend/src/main.tsx`, and `frontend/src/app/App.tsx`; Depends: none; Validate: `test -f frontend/package.json && test -f frontend/src/main.tsx`
+- [X] T002 Configure TypeScript, Vite path aliases, local `/api/` proxying, and Vite env typing in `frontend/tsconfig.json`, `frontend/tsconfig.app.json`, `frontend/vite.config.ts`, and `frontend/src/vite-env.d.ts`; Depends: T001; Validate: `cd frontend && npm run typecheck` after T010
+- [X] T003 [P] Configure Tailwind CSS and shadcn/ui base settings in `frontend/tailwind.config.ts`, `frontend/postcss.config.js`, `frontend/components.json`, and `frontend/src/index.css`; Depends: T001; Validate: `cd frontend && npm run build` after T010
+- [X] T004 [P] Add shadcn/ui form primitives in `frontend/src/components/ui/button.tsx`, `frontend/src/components/ui/input.tsx`, `frontend/src/components/ui/label.tsx`, `frontend/src/components/ui/form.tsx`, `frontend/src/components/ui/select.tsx`, and `frontend/src/components/ui/textarea.tsx`; Depends: T003; Validate: `cd frontend && npm run typecheck` after T010
+- [X] T005 [P] Add shadcn/ui feedback and navigation primitives in `frontend/src/components/ui/alert.tsx`, `frontend/src/components/ui/badge.tsx`, `frontend/src/components/ui/pagination.tsx`, and `frontend/src/components/ui/separator.tsx`; Depends: T003; Validate: `cd frontend && npm run typecheck` after T010
+- [X] T006 Configure the unit/component/browser test harness in `frontend/vitest.config.ts`, `frontend/playwright.config.ts`, `frontend/src/test/setup.ts`, and `frontend/src/test/server.ts`; Depends: T001; Validate: `cd frontend && npm run test -- --run` after T010
+- [X] T007 [P] Configure frontend linting and formatting in `frontend/eslint.config.js`, `frontend/.prettierrc.json`, and `frontend/.prettierignore`; Depends: T001; Validate: `cd frontend && npm run lint && npm run format:check` after T010
+- [X] T008 [P] Add frontend dependency, build, and browser-test artifacts to `.gitignore`; Depends: T001; Validate: `git check-ignore frontend/node_modules frontend/dist frontend/test-results`
+- [X] T009 [P] Document frontend commands and backend prerequisites in `frontend/README.md`; Depends: T001; Validate: `rg "npm run dev|docker compose|VITE_API_BASE_URL" frontend/README.md`
+- [X] T010 Install and pin frontend dependencies in `frontend/package-lock.json`; Depends: T001-T007; Validate: `cd frontend && npm ci`
 
 ---
 
@@ -39,27 +39,27 @@
 
 ### Tests for Foundational Behavior
 
-- [ ] T011 [P] Add safe display unit tests for status labels, category labels, decision labels, datetime fallback, and unsafe value suppression in `frontend/src/lib/safe-display.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/safe-display.test.ts`
-- [ ] T012 [P] Add API client tests for bearer auth, timeout handling, multipart support, 401 clearing signal, and safe error normalization in `frontend/src/lib/api-client.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/api-client.test.ts`
-- [ ] T013 [P] Add browser-session tests for `sessionStorage`, refresh-token non-persistence, sign-out clearing, and cross-tab messages in `frontend/src/lib/auth-session.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/auth-session.test.ts`
-- [ ] T014 [P] Add public API base URL and Django Admin URL resolver tests in `frontend/src/lib/config.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/config.test.ts`
-- [ ] T015 [P] Add shared validation helper tests for required text, length limits, integer ranges, and image constraints in `frontend/src/lib/validation.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/validation.test.ts`
-- [ ] T016 [P] Add reusable feedback component tests for loading, empty, safe error, status, and live-region behavior in `frontend/src/components/layout/feedback.test.tsx`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/components/layout/feedback.test.tsx`
-- [ ] T017 [P] Add provider and router smoke tests for app bootstrapping, protected-route blocking, and neutral not-found rendering in `frontend/src/app/app.test.tsx`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/app/app.test.tsx`
+- [X] T011 [P] Add safe display unit tests for status labels, category labels, decision labels, datetime fallback, and unsafe value suppression in `frontend/src/lib/safe-display.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/safe-display.test.ts`
+- [X] T012 [P] Add API client tests for bearer auth, timeout handling, multipart support, 401 clearing signal, and safe error normalization in `frontend/src/lib/api-client.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/api-client.test.ts`
+- [X] T013 [P] Add browser-session tests for `sessionStorage`, refresh-token non-persistence, sign-out clearing, and cross-tab messages in `frontend/src/lib/auth-session.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/auth-session.test.ts`
+- [X] T014 [P] Add public API base URL and Django Admin URL resolver tests in `frontend/src/lib/config.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/config.test.ts`
+- [X] T015 [P] Add shared validation helper tests for required text, length limits, integer ranges, and image constraints in `frontend/src/lib/validation.test.ts`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/lib/validation.test.ts`
+- [X] T016 [P] Add reusable feedback component tests for loading, empty, safe error, status, and live-region behavior in `frontend/src/components/layout/feedback.test.tsx`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/components/layout/feedback.test.tsx`
+- [X] T017 [P] Add provider and router smoke tests for app bootstrapping, protected-route blocking, and neutral not-found rendering in `frontend/src/app/app.test.tsx`; Depends: T001-T010; Validate: `cd frontend && npm run test -- src/app/app.test.tsx`
 
 ### Implementation
 
-- [ ] T018 [P] Define raw backend response types and safe frontend display models in `frontend/src/lib/models.ts`; Depends: T011-T017; Validate: `cd frontend && npm run typecheck`
-- [ ] T019 [P] Implement public API base URL and Django Admin URL resolution in `frontend/src/lib/config.ts`; Depends: T014; Validate: `cd frontend && npm run test -- src/lib/config.test.ts`
-- [ ] T020 Implement the central fetch API client with bearer auth, timeout handling, FormData support, and safe error normalization in `frontend/src/lib/api-client.ts`; Depends: T012, T018, T019; Validate: `cd frontend && npm run test -- src/lib/api-client.test.ts`
-- [ ] T021 Implement browser-session storage using `sessionStorage` plus `BroadcastChannel` sign-out and session messages in `frontend/src/lib/auth-session.ts`; Depends: T013, T018; Validate: `cd frontend && npm run test -- src/lib/auth-session.test.ts`
-- [ ] T022 Implement safe display allowlists, unsafe string detection, status labels, classification labels, safe error copy, and datetime formatting in `frontend/src/lib/safe-display.ts`; Depends: T011, T018; Validate: `cd frontend && npm run test -- src/lib/safe-display.test.ts`
-- [ ] T023 [P] Implement shared validation helpers for required text, length limits, integer ranges, and image constraints in `frontend/src/lib/validation.ts`; Depends: T015; Validate: `cd frontend && npm run test -- src/lib/validation.test.ts`
-- [ ] T024 [P] Implement reusable loading, empty, safe error, status, and live-region components in `frontend/src/components/layout/feedback.tsx`; Depends: T016, T004, T005; Validate: `cd frontend && npm run test -- src/components/layout/feedback.test.tsx`
-- [ ] T025 [P] Implement app shell and public layout primitives in `frontend/src/components/layout/AppShell.tsx` and `frontend/src/components/layout/PublicLayout.tsx`; Depends: T004, T005; Validate: `cd frontend && npm run typecheck`
-- [ ] T026 Implement app providers with session context, API client wiring, and protected-data clearing in `frontend/src/app/providers.tsx`; Depends: T020, T021, T024, T025; Validate: `cd frontend && npm run test -- src/app/app.test.tsx`
-- [ ] T027 Implement the router skeleton, protected route guard, and neutral not-found route in `frontend/src/app/router.tsx` and `frontend/src/routes/NotFoundPage.tsx`; Depends: T026; Validate: `cd frontend && npm run test -- src/app/app.test.tsx`
-- [ ] T028 Configure MSW backend API handlers for frontend tests in `frontend/src/test/handlers.ts`; Depends: T018, T020; Validate: `cd frontend && npm run test -- src/lib/api-client.test.ts src/app/app.test.tsx`
+- [X] T018 [P] Define raw backend response types and safe frontend display models in `frontend/src/lib/models.ts`; Depends: T011-T017; Validate: `cd frontend && npm run typecheck`
+- [X] T019 [P] Implement public API base URL and Django Admin URL resolution in `frontend/src/lib/config.ts`; Depends: T014; Validate: `cd frontend && npm run test -- src/lib/config.test.ts`
+- [X] T020 Implement the central fetch API client with bearer auth, timeout handling, FormData support, and safe error normalization in `frontend/src/lib/api-client.ts`; Depends: T012, T018, T019; Validate: `cd frontend && npm run test -- src/lib/api-client.test.ts`
+- [X] T021 Implement browser-session storage using `sessionStorage` plus `BroadcastChannel` sign-out and session messages in `frontend/src/lib/auth-session.ts`; Depends: T013, T018; Validate: `cd frontend && npm run test -- src/lib/auth-session.test.ts`
+- [X] T022 Implement safe display allowlists, unsafe string detection, status labels, classification labels, safe error copy, and datetime formatting in `frontend/src/lib/safe-display.ts`; Depends: T011, T018; Validate: `cd frontend && npm run test -- src/lib/safe-display.test.ts`
+- [X] T023 [P] Implement shared validation helpers for required text, length limits, integer ranges, and image constraints in `frontend/src/lib/validation.ts`; Depends: T015; Validate: `cd frontend && npm run test -- src/lib/validation.test.ts`
+- [X] T024 [P] Implement reusable loading, empty, safe error, status, and live-region components in `frontend/src/components/layout/feedback.tsx`; Depends: T016, T004, T005; Validate: `cd frontend && npm run test -- src/components/layout/feedback.test.tsx`
+- [X] T025 [P] Implement app shell and public layout primitives in `frontend/src/components/layout/AppShell.tsx` and `frontend/src/components/layout/PublicLayout.tsx`; Depends: T004, T005; Validate: `cd frontend && npm run typecheck`
+- [X] T026 Implement app providers with session context, API client wiring, and protected-data clearing in `frontend/src/app/providers.tsx`; Depends: T020, T021, T024, T025; Validate: `cd frontend && npm run test -- src/app/app.test.tsx`
+- [X] T027 Implement the router skeleton, protected route guard, and neutral not-found route in `frontend/src/app/router.tsx` and `frontend/src/routes/NotFoundPage.tsx`; Depends: T026; Validate: `cd frontend && npm run test -- src/app/app.test.tsx`
+- [X] T028 Configure MSW backend API handlers for frontend tests in `frontend/src/test/handlers.ts`; Depends: T018, T020; Validate: `cd frontend && npm run test -- src/lib/api-client.test.ts src/app/app.test.tsx`
 
 **Checkpoint**: Foundation ready. User story implementation can now begin.
 
