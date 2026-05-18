@@ -4,37 +4,39 @@ from django.contrib import admin
 
 from .models import ClassificationResult
 
+SAFE_CLASSIFICATION_ADMIN_FIELDS = (
+    "id",
+    "submission",
+    "job_id",
+    "classification_type",
+    "category",
+    "review_decision",
+    "score",
+    "confidence_score",
+    "reason",
+    "reasons",
+    "provider",
+    "classifier_version",
+    "schema_version",
+    "photo_type",
+    "image_quality",
+    "technical_status",
+    "content_safety_status",
+    "profile_suitability",
+    "is_fallback",
+    "fallback_reason",
+    "error_code",
+    "classified_at",
+    "classification_duration_ms",
+    "created_at",
+)
+
 
 @admin.register(ClassificationResult)
 class ClassificationResultAdmin(admin.ModelAdmin):
     """Readonly operational view of normalized classifier output."""
 
-    fields = (
-        "id",
-        "submission",
-        "job_id",
-        "classification_type",
-        "category",
-        "review_decision",
-        "score",
-        "confidence_score",
-        "reason",
-        "reasons",
-        "provider",
-        "classifier_version",
-        "schema_version",
-        "photo_type",
-        "image_quality",
-        "technical_status",
-        "content_safety_status",
-        "profile_suitability",
-        "is_fallback",
-        "fallback_reason",
-        "error_code",
-        "classified_at",
-        "classification_duration_ms",
-        "created_at",
-    )
+    fields = SAFE_CLASSIFICATION_ADMIN_FIELDS
     readonly_fields = fields
     list_display = (
         "id",

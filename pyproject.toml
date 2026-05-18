@@ -66,6 +66,7 @@ line-length = 100
 src = ["services/main", "services/classifier", "tests"]
 extend-exclude = [
   "migrations",
+  ".manual-stage*",
   ".venv",
   "venv",
   "dist",

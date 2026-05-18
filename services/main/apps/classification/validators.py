@@ -162,7 +162,9 @@ FORBIDDEN_SENSITIVE_VALUE_PATTERNS = (
     r"\b(?:"
     r"api[_\s-]?key|access[_\s-]?key|secret[_\s-]?access[_\s-]?key|"
     r"access[_\s-]?token|refresh[_\s-]?token|session[_\s-]?token|"
-    r"jwt|password|secret|credential"
+    r"jwt|password|secret|credential|signed[_\s-]?url|pre[_\s-]?signed[_\s-]?url|"
+    r"public[_\s-]?url|raw[_\s-]?prompt|prompt(?:[_\s-]?(?:text|input))?|"
+    r"provider[_\s-]?raw[_\s-]?data|raw[_\s-]?provider[_\s-]?data"
     r")s?\s*[:=]\s*\S+",
     r"\b(?:secret|token|password|credential)[-_][a-z0-9._~+/=-]{4,}",
     r"\b[a-z0-9._~+/=-]{4,}[-_](?:secret|token|password|credential)\b",

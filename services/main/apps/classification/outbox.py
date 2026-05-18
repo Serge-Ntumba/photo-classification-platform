@@ -7,8 +7,8 @@ from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from .constants import (
-    JOB_PUBLISH_STATUSES,
     JOB_PUBLISH_STATUS_TRANSITIONS,
+    JOB_PUBLISH_STATUSES,
     PUBLISH_STATUS_FAILED,
     PUBLISH_STATUS_PENDING,
     PUBLISH_STATUS_PUBLISHED,
@@ -59,17 +59,23 @@ class ClassificationJobDraft:
         if payload_fields != CLASSIFICATION_JOB_PAYLOAD_REQUIRED_FIELDS:
             missing = sorted(CLASSIFICATION_JOB_PAYLOAD_REQUIRED_FIELDS - payload_fields)
             extra = sorted(payload_fields - CLASSIFICATION_JOB_PAYLOAD_REQUIRED_FIELDS)
-            msg = f"Classification job payload fields are invalid. Missing={missing}; extra={extra}."
+            msg = (
+                f"Classification job payload fields are invalid. Missing={missing}; extra={extra}."
+            )
             raise ClassificationJobPayloadError(msg)
 
         try:
             payload_submission_id = UUID(str(self.payload["submission_id"]))
             payload_job_id = UUID(str(self.payload["job_id"]))
         except (TypeError, ValueError) as exc:
-            raise ClassificationJobPayloadError("Payload submission_id and job_id must be UUIDs.") from exc
+            raise ClassificationJobPayloadError(
+                "Payload submission_id and job_id must be UUIDs.",
+            ) from exc
 
         if payload_submission_id != self.submission_id:
-            raise ClassificationJobPayloadError("Payload submission_id must match the owning submission.")
+            raise ClassificationJobPayloadError(
+                "Payload submission_id must match the owning submission.",
+            )
         if payload_job_id != self.job_id:
             raise ClassificationJobPayloadError("Payload job_id must match the draft job_id.")
 
@@ -77,7 +83,9 @@ class ClassificationJobDraft:
         if type(attempt) is not int or attempt < 1:
             raise ClassificationJobPayloadError("Payload attempt must be a positive integer.")
         if not str(self.payload["requested_at"]).strip():
-            raise ClassificationJobPayloadError("Payload requested_at must be a non-empty timestamp.")
+            raise ClassificationJobPayloadError(
+                "Payload requested_at must be a non-empty timestamp.",
+            )
 
     def transition_to(self, target_status: str) -> None:
         allowed = JOB_PUBLISH_STATUS_TRANSITIONS.get(self.publish_status, ())

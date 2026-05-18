@@ -24,7 +24,7 @@ class S3StorageSettings:
     use_ssl: bool = False
 
     @classmethod
-    def from_environment(cls) -> "S3StorageSettings":
+    def from_environment(cls) -> S3StorageSettings:
         return cls(
             endpoint_url=os.getenv("S3_ENDPOINT_URL", "http://minio:9000"),
             access_key_id=os.getenv("S3_ACCESS_KEY_ID", ""),

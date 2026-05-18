@@ -1,5 +1,7 @@
 from django.http import JsonResponse
 
+from apps.classification.health import worker_health_snapshot
+
 
 def health(_request):
     return JsonResponse(
@@ -9,3 +11,7 @@ def health(_request):
             "version": "1.0.0",
         },
     )
+
+
+def worker_health(_request):
+    return JsonResponse(worker_health_snapshot())

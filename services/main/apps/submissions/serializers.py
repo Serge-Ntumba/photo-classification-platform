@@ -11,6 +11,30 @@ from apps.core.images import ImageValidationError, NormalizedImage, validate_and
 
 from .models import Submission
 
+PUBLIC_CLASSIFICATION_RESULT_FIELDS = frozenset(
+    {
+        "classification_type",
+        "category",
+        "review_decision",
+        "score",
+        "confidence_score",
+        "reasons",
+        "provider",
+        "classifier_version",
+        "schema_version",
+        "photo_type",
+        "image_quality",
+        "technical_status",
+        "content_safety_status",
+        "profile_suitability",
+        "is_fallback",
+        "fallback_reason",
+        "error_code",
+        "classified_at",
+        "classification_duration_ms",
+    },
+)
+
 
 class SubmissionClassificationSerializer(serializers.Serializer):
     classification_type = serializers.CharField(read_only=True)

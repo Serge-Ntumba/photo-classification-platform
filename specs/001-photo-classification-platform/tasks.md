@@ -213,22 +213,22 @@
 
 **Purpose**: Finish deployment readiness, documentation alignment, and end-to-end verification after selected user stories are complete.
 
-- [ ] T083 [P] Add OpenAPI/docs endpoint availability tests in `tests/contracts/test_openapi_docs.py`
-- [ ] T084 Add API schema and docs endpoint configuration for generated OpenAPI output in `services/main/config/urls.py` and `services/main/config/settings.py`
-- [ ] T085 [P] Create local development and smoke-test instructions aligned with `quickstart.md` in `README.md`
-- [ ] T086 [P] Add Kubernetes manifest validation command/check coverage for private classifier, PostgreSQL, RabbitMQ, object storage, and debug console exposure rules in `.github/workflows/ci.yml` before creating manifests under `infra/k8s/`
-- [ ] T087 Create Kubernetes manifests for namespace, configmap, secrets placeholders, deployments, private services, public ingress only for Nginx/Django, and migration job under `infra/k8s/`
-- [ ] T088 [P] Create Docker Compose smoke test script for auth, upload, async worker processing, latest result retrieval, admin verification, duplicate delivery handling, forbidden trait absence, credential-free rule-based classifier mode, and internal-only classifier exposure in `scripts/smoke_photo_classification_flow.sh`
-- [ ] T089 [P] Add database migration check and fixture/factory helpers for CI reliability in `tests/factories.py`
-- [ ] T090 [P] Add permanent submission deletion, object deletion failure, retention/audit conflict, and worker-racing-with-deleted-submission tests in `services/main/apps/submissions/tests/test_submission_deletion_retention.py` and `services/main/apps/classification/tests/test_worker_deleted_submission.py`
-- [ ] T091 [P] Add provider metadata, raw response, API response, and Django Admin response minimization regression tests in `tests/safety/test_response_data_minimization.py`
-- [ ] T092 [P] Add upload responsiveness and nonblocking classification boundary tests proving submission creation does not synchronously call the classifier in `services/main/apps/submissions/tests/test_submission_responsiveness.py`
-- [ ] T093 [P] Add worker health, queue depth, retry counter, task state, and safe failure observability tests in `services/main/apps/classification/tests/test_worker_observability.py`
-- [ ] T094 Implement permanent deletion and retention orchestration that deletes private photo objects, handles object deletion failures safely, resolves classification-history retention behavior, and skips deleted submissions in worker flows in `services/main/apps/submissions/retention_service.py`, `services/main/apps/submissions/admin.py`, and `services/main/apps/classification/tasks.py`
-- [ ] T095 Implement provider metadata/raw-response sanitizer hardening and API/Admin response minimization for classification output in `services/main/apps/classification/validators.py`, `services/main/apps/classification/services.py`, `services/main/apps/submissions/serializers.py`, and `services/main/apps/classification/admin.py`
-- [ ] T096 Implement worker health and queue/task observability plus upload-path nonblocking instrumentation in `services/main/apps/classification/health.py`, `services/main/apps/core/views.py`, `services/main/apps/submissions/views.py`, and `services/main/config/urls.py`
-- [ ] T097 Run the validation path from `specs/001-photo-classification-platform/quickstart.md` and record any command corrections in `README.md`
-- [ ] T098 Run the full CI-equivalent checks from `.github/workflows/ci.yml`, including safety tests and no-external-model-provider-credential validation, and fix failures in the touched implementation files
+- [X] T083 [P] Add OpenAPI/docs endpoint availability tests in `tests/contracts/test_openapi_docs.py`
+- [X] T084 Add API schema and docs endpoint configuration for generated OpenAPI output in `services/main/config/urls.py` and `services/main/config/settings.py`
+- [X] T085 [P] Create local development and smoke-test instructions aligned with `quickstart.md` in `README.md`
+- [X] T086 [P] Add Kubernetes manifest validation command/check coverage for private classifier, PostgreSQL, RabbitMQ, object storage, and debug console exposure rules in `.github/workflows/ci.yml` before creating manifests under `infra/k8s/`
+- [X] T087 Create Kubernetes manifests for namespace, configmap, secrets placeholders, deployments, private services, public ingress only for Nginx/Django, and migration job under `infra/k8s/`
+- [X] T088 [P] Create Docker Compose smoke test script for auth, upload, async worker processing, latest result retrieval, admin verification, duplicate delivery handling, forbidden trait absence, credential-free rule-based classifier mode, and internal-only classifier exposure in `scripts/smoke_photo_classification_flow.sh`
+- [X] T089 [P] Add database migration check and fixture/factory helpers for CI reliability in `tests/factories.py`
+- [X] T090 [P] Add permanent submission deletion, object deletion failure, retention/audit conflict, and worker-racing-with-deleted-submission tests in `services/main/apps/submissions/tests/test_submission_deletion_retention.py` and `services/main/apps/classification/tests/test_worker_deleted_submission.py`
+- [X] T091 [P] Add provider metadata, raw response, API response, and Django Admin response minimization regression tests in `tests/safety/test_response_data_minimization.py`
+- [X] T092 [P] Add upload responsiveness and nonblocking classification boundary tests proving submission creation does not synchronously call the classifier in `services/main/apps/submissions/tests/test_submission_responsiveness.py`
+- [X] T093 [P] Add worker health, queue depth, retry counter, task state, and safe failure observability tests in `services/main/apps/classification/tests/test_worker_observability.py`
+- [X] T094 Implement permanent deletion and retention orchestration that deletes private photo objects, handles object deletion failures safely, resolves classification-history retention behavior, and skips deleted submissions in worker flows in `services/main/apps/submissions/retention_service.py`, `services/main/apps/submissions/admin.py`, and `services/main/apps/classification/tasks.py`
+- [X] T095 Implement provider metadata/raw-response sanitizer hardening and API/Admin response minimization for classification output in `services/main/apps/classification/validators.py`, `services/main/apps/classification/services.py`, `services/main/apps/submissions/serializers.py`, and `services/main/apps/classification/admin.py`
+- [X] T096 Implement worker health and queue/task observability plus upload-path nonblocking instrumentation in `services/main/apps/classification/health.py`, `services/main/apps/core/views.py`, `services/main/apps/submissions/views.py`, and `services/main/config/urls.py`
+- [X] T097 Run the validation path from `specs/001-photo-classification-platform/quickstart.md` and record any command corrections in `README.md`
+- [X] T098 Run the full CI-equivalent checks from `.github/workflows/ci.yml`, including safety tests and no-external-model-provider-credential validation, and fix failures in the touched implementation files
 
 ---
 

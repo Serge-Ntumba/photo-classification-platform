@@ -211,6 +211,9 @@ jobs:
               raise SystemExit("classifier must not publish host ports")
           PY
 
+      - name: Validate Kubernetes manifests and exposure boundaries
+        run: python scripts/validate_k8s_manifests.py
+
       - name: Build Django service image
         run: docker build -t photo-classification-web:${{ github.sha }} -f services/main/Dockerfile .
 

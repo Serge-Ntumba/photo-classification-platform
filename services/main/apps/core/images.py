@@ -13,7 +13,9 @@ ACCEPTED_IMAGE_TYPES: Final[dict[str, str]] = {
     "image/png": "PNG",
     "image/webp": "WEBP",
 }
-FORMAT_TO_CONTENT_TYPE: Final[dict[str, str]] = {value: key for key, value in ACCEPTED_IMAGE_TYPES.items()}
+FORMAT_TO_CONTENT_TYPE: Final[dict[str, str]] = {
+    value: key for key, value in ACCEPTED_IMAGE_TYPES.items()
+}
 MAX_UPLOAD_BYTES: Final[int] = 5 * 1024 * 1024
 MIN_WIDTH: Final[int] = 300
 MIN_HEIGHT: Final[int] = 300
@@ -71,7 +73,10 @@ def validate_image_size(content: bytes, *, max_bytes: int = MAX_UPLOAD_BYTES) ->
     if not content:
         raise ImageValidationError("Uploaded image is empty.", code="empty_file")
     if len(content) > max_bytes:
-        raise ImageValidationError("Uploaded image exceeds the maximum size.", code="file_too_large")
+        raise ImageValidationError(
+            "Uploaded image exceeds the maximum size.",
+            code="file_too_large",
+        )
 
 
 def validate_dimensions(
@@ -84,9 +89,15 @@ def validate_dimensions(
     max_height: int = MAX_HEIGHT,
 ) -> None:
     if width < min_width or height < min_height:
-        raise ImageValidationError("Image dimensions are below the minimum.", code="dimensions_too_small")
+        raise ImageValidationError(
+            "Image dimensions are below the minimum.",
+            code="dimensions_too_small",
+        )
     if width > max_width or height > max_height:
-        raise ImageValidationError("Image dimensions exceed the maximum.", code="dimensions_too_large")
+        raise ImageValidationError(
+            "Image dimensions exceed the maximum.",
+            code="dimensions_too_large",
+        )
 
 
 def open_verified_image(content: bytes) -> Image.Image:

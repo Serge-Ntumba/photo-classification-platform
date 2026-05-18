@@ -5,8 +5,8 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 
-
 pytestmark = pytest.mark.django_db
+TEST_PASSWORD = "StrongPassword123!"  # noqa: S105
 
 
 REGISTER_URL = reverse("auth-register")
@@ -20,7 +20,7 @@ def test_register_contract_creates_non_admin_user(api_client):
         {
             "email": "casey@example.com",
             "username": "casey",
-            "password": "StrongPassword123!",
+            "password": TEST_PASSWORD,
             "is_staff": True,
             "is_superuser": True,
         },
@@ -34,7 +34,7 @@ def test_register_contract_creates_non_admin_user(api_client):
     assert response.data["is_staff"] is False
 
     user = get_user_model().objects.get(email="casey@example.com")
-    assert user.check_password("StrongPassword123!")
+    assert user.check_password(TEST_PASSWORD)
     assert user.is_staff is False
     assert user.is_superuser is False
 
@@ -43,12 +43,12 @@ def test_login_contract_returns_tokens_and_user(api_client):
     get_user_model().objects.create_user(
         username="riley",
         email="riley@example.com",
-        password="StrongPassword123!",
+        password=TEST_PASSWORD,
     )
 
     response = api_client.post(
         LOGIN_URL,
-        {"email": "riley@example.com", "password": "StrongPassword123!"},
+        {"email": "riley@example.com", "password": TEST_PASSWORD},
         format="json",
     )
 
@@ -68,7 +68,7 @@ def test_me_contract_requires_authentication_and_returns_profile(api_client):
     user = get_user_model().objects.create_user(
         username="morgan",
         email="morgan@example.com",
-        password="StrongPassword123!",
+        password=TEST_PASSWORD,
     )
 
     unauthenticated = api_client.get(ME_URL)

@@ -168,6 +168,37 @@ def test_safe_log_filter_redacts_sensitive_values_and_attaches_request_id() -> N
     assert "Alex" not in redacted
 
 
+@pytest.mark.parametrize(
+    "message",
+    [
+        "rawPrompt=classify Alex Morgan",
+        "raw_prompt=classify Alex Morgan",
+        "raw-prompt=classify Alex Morgan",
+        "signedURL=https://example.test/photo",
+        "imageBytes=/9j/4AAQSkZJRgABAQAAAQABAAD",
+    ],
+)
+def test_safe_log_filter_redacts_sensitive_key_variants(message: str) -> None:
+    record = logging.LogRecord(
+        name="safety-test",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=1,
+        msg=message,
+        args=(),
+        exc_info=None,
+    )
+
+    assert SafeLogFilter().filter(record) is True
+
+    redacted = record.getMessage()
+    assert "Alex" not in redacted
+    assert "rawPrompt" not in redacted
+    assert "raw_prompt" not in redacted
+    assert "signedURL" not in redacted
+    assert "imageBytes" not in redacted
+
+
 def test_safe_formatter_redacts_exception_text() -> None:
     try:
         raise RuntimeError("password=secret-token")

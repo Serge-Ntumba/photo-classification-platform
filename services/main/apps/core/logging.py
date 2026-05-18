@@ -25,11 +25,13 @@ SENSITIVE_LOG_RE = re.compile(
             r"\b(?:bearer|basic)\s+[a-z0-9._~+/=-]{8,}",
             r"([?&](?:x-amz-signature|x-amz-credential|x-amz-security-token|"
             r"x-goog-signature|x-goog-credential|signature)=)[^&\s]+",
+            r"\braw[_\s-]?prompt\s*[:=]\s*.*",
             r"\b(?:api[_\s-]?key|access[_\s-]?key|secret[_\s-]?access[_\s-]?key|"
             r"access[_\s-]?token|refresh[_\s-]?token|session[_\s-]?token|bearer"
             r"[_\s-]?token|token|jwt|"
             r"password|secret|credential|signed[_\s-]?url|pre[_\s-]?signed[_\s-]?url|"
-            r"public[_\s-]?url|raw[_\s-]?provider[_\s-]?data|provider[_\s-]?raw"
+            r"public[_\s-]?url|raw[_\s-]?prompt|prompt(?:[_\s-]?(?:text|input))?|"
+            r"raw[_\s-]?provider[_\s-]?data|provider[_\s-]?raw"
             r"[_\s-]?data)s?\s*[:=]\s*\S+",
             r"\b(?:raw|system|user|developer|assistant)\s+prompt\s*[:=]?\s*.*",
             r"\bdata:image/(?:jpeg|jpg|png|webp);base64,[a-z0-9+/=\s]+",

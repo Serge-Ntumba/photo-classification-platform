@@ -5,6 +5,7 @@ from django.contrib import admin
 from apps.classification.models import ClassificationResult
 
 from .models import Submission
+from .retention_service import permanently_delete_submission
 
 
 class ClassificationResultInline(admin.TabularInline):
@@ -128,5 +129,9 @@ class SubmissionAdmin(admin.ModelAdmin):
     def has_add_permission(self, request) -> bool:
         return False
 
-    def has_delete_permission(self, request, obj=None) -> bool:
-        return False
+    def delete_model(self, request, obj: Submission) -> None:
+        permanently_delete_submission(submission_id=obj.pk)
+
+    def delete_queryset(self, request, queryset) -> None:
+        for submission_id in queryset.values_list("pk", flat=True):
+            permanently_delete_submission(submission_id=submission_id)

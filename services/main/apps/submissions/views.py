@@ -62,7 +62,9 @@ class SubmissionViewSet(
         serializer.is_valid(raise_exception=True)
         submission = self._create_submission(serializer)
         output = SubmissionReadSerializer(submission, context=self.get_serializer_context())
-        return Response(output.data, status=status.HTTP_201_CREATED)
+        response = Response(output.data, status=status.HTTP_201_CREATED)
+        response["X-Classification-Queued"] = "true"
+        return response
 
     def _create_submission(self, serializer: SubmissionCreateSerializer) -> Submission:
         submission_id = uuid4()

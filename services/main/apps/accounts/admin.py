@@ -8,9 +8,7 @@ from .models import User
 
 @admin.register(User)
 class ApplicationUserAdmin(UserAdmin):
-    fieldsets = UserAdmin.fieldsets + (
-        ("Application", {"fields": ("id",)}),
-    )
+    fieldsets = UserAdmin.fieldsets + (("Application", {"fields": ("id",)}),)
     add_fieldsets = (
         (
             None,

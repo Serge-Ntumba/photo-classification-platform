@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrate
+  namespace: photo-classification
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: django-migrate
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: ghcr.io/example/photo-classification-web:latest
+          imagePullPolicy: IfNotPresent
+          command: ["python", "manage.py", "migrate", "--noinput"]
+          envFrom:
+            - configMapRef:
+                name: main-config
+            - secretRef:
+                name: main-secret
+          env:
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: main-secret
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: CELERY_BROKER_URL
+              value: amqp://photo_app:$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672/photo_app

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: photo-classification
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/example/photo-classification-worker:latest
+          imagePullPolicy: IfNotPresent
+          command: ["celery", "-A", "config", "worker", "--loglevel=INFO", "-Q", "classification,default"]
+          envFrom:
+            - configMapRef:
+                name: main-config
+            - secretRef:
+                name: main-secret
+          env:
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: main-secret
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: CELERY_BROKER_URL
+              value: amqp://photo_app:$(RABBITMQ_DEFAULT_PASS)@rabbitmq:5672/photo_app
+          readinessProbe:
+            exec:
+              command: ["celery", "-A", "config", "inspect", "ping", "-d", "celery@$HOSTNAME"]
+            initialDelaySeconds: 20
+            periodSeconds: 30

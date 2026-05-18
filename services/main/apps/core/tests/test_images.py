@@ -9,7 +9,12 @@ from PIL.PngImagePlugin import PngInfo
 from apps.core.images import ImageValidationError, validate_and_normalize_image
 
 
-def make_image(format_name: str, *, size: tuple[int, int] = (320, 320), metadata: bool = False) -> bytes:
+def make_image(
+    format_name: str,
+    *,
+    size: tuple[int, int] = (320, 320),
+    metadata: bool = False,
+) -> bytes:
     image = Image.new("RGB", size, color=(120, 80, 40))
     output = BytesIO()
     if format_name == "JPEG" and metadata:
@@ -52,7 +57,10 @@ def test_normalization_strips_png_application_metadata() -> None:
         ("WEBP", "image/webp"),
     ],
 )
-def test_normalization_preserves_accepted_format_family(format_name: str, content_type: str) -> None:
+def test_normalization_preserves_accepted_format_family(
+    format_name: str,
+    content_type: str,
+) -> None:
     normalized = validate_and_normalize_image(make_image(format_name), content_type)
 
     assert normalized.content_type == content_type

@@ -5,8 +5,8 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 
-
 pytestmark = pytest.mark.django_db
+TEST_PASSWORD = "StrongPassword123!"  # noqa: S105
 
 
 def test_registration_login_token_use_and_profile_retrieval(api_client):
@@ -15,7 +15,7 @@ def test_registration_login_token_use_and_profile_retrieval(api_client):
         {
             "email": "alex@example.com",
             "username": "alex",
-            "password": "StrongPassword123!",
+            "password": TEST_PASSWORD,
         },
         format="json",
     )
@@ -23,7 +23,7 @@ def test_registration_login_token_use_and_profile_retrieval(api_client):
 
     login_response = api_client.post(
         reverse("auth-login"),
-        {"email": "alex@example.com", "password": "StrongPassword123!"},
+        {"email": "alex@example.com", "password": TEST_PASSWORD},
         format="json",
     )
     assert login_response.status_code == status.HTTP_200_OK
@@ -43,7 +43,7 @@ def test_invalid_login_attempts_fail_generically(api_client):
     get_user_model().objects.create_user(
         username="sam",
         email="sam@example.com",
-        password="StrongPassword123!",
+        password=TEST_PASSWORD,
     )
 
     wrong_password = api_client.post(
@@ -68,7 +68,7 @@ def test_duplicate_registration_fields_return_validation_errors(api_client):
     get_user_model().objects.create_user(
         username="jordan",
         email="jordan@example.com",
-        password="StrongPassword123!",
+        password=TEST_PASSWORD,
     )
 
     response = api_client.post(

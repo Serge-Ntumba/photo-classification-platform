@@ -9,8 +9,9 @@ import pytest
 ROOT = Path(__file__).resolve().parent
 MAIN_SERVICE = ROOT / "services" / "main"
 CLASSIFIER_SERVICE = ROOT / "services" / "classifier"
+TEST_HELPERS = ROOT / "tests"
 
-for path in (MAIN_SERVICE, CLASSIFIER_SERVICE):
+for path in (MAIN_SERVICE, CLASSIFIER_SERVICE, TEST_HELPERS):
     path_text = str(path)
     if path_text not in sys.path:
         sys.path.insert(0, path_text)
@@ -27,8 +28,9 @@ os.environ.setdefault("MODEL_PROVIDER_API_KEY", "")
 
 @pytest.fixture
 def fastapi_client():
-    from app.main import app
     from fastapi.testclient import TestClient
+
+    from app.main import app
 
     return TestClient(app)
 

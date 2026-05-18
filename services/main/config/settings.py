@@ -176,6 +176,14 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Django/DRF API for photo submission and async classification.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,
+    },
+    "TAGS": [
+        {"name": "auth", "description": "Registration, login, and current-user profile."},
+        {"name": "submissions", "description": "User-owned photo submission workflow."},
+    ],
 }
 
 STATIC_URL = "static/"
@@ -204,6 +212,7 @@ RABBITMQ_PUBLISH_MAX_ATTEMPTS = env_int("RABBITMQ_PUBLISH_MAX_ATTEMPTS", 3)
 RETRY_BACKOFF_BASE_SECONDS = env_int("RETRY_BACKOFF_BASE_SECONDS", 2)
 RETRY_BACKOFF_CAP_SECONDS = env_int("RETRY_BACKOFF_CAP_SECONDS", 60)
 RETRY_BACKOFF_JITTER = env_bool("RETRY_BACKOFF_JITTER", True)
+WORKER_HEALTH_INCLUDE_QUEUE_DEPTH = env_bool("WORKER_HEALTH_INCLUDE_QUEUE_DEPTH", False)
 
 CELERY_BROKER_URL = os.getenv(
     "CELERY_BROKER_URL",
