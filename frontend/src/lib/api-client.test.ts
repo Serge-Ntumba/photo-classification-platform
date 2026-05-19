@@ -127,7 +127,7 @@ describe("API client", () => {
       expect(isApiError(error)).toBe(true);
       expect(error).toMatchObject({
         scope: "form",
-        message: "Something went wrong. Try again later.",
+        message: "Correct the highlighted fields.",
       });
     }
   });

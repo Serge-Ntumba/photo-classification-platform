@@ -72,33 +72,43 @@ const DECISION_LABELS: Record<ReviewDecision, string> = {
   needs_manual_review: "Needs manual review",
 };
 
+const APP_NAME = "Photo Classification Platform";
 const FALLBACK_REASON = "Review details are unavailable.";
 
-const UNSAFE_VALUE_PATTERNS = [
+const PRIVATE_OR_INTERNAL_VALUE_PATTERNS = [
   /\bapi[_\s-]?key\b/i,
+  /\bapikey\b/i,
   /\bsecret\b/i,
   /\bcredential/i,
   /\bpassword\b/i,
+  /\btoken\b/i,
   /\baccess[_\s-]?token\b/i,
   /\brefresh[_\s-]?token\b/i,
   /\bauthorization\b/i,
   /\bbearer\s+[a-z0-9._~+/=-]+/i,
+  /\beyJ[a-z0-9_-]+\.[a-z0-9_-]+\.[a-z0-9_-]+\b/i,
   /\bsigned[_\s-]?url\b/i,
+  /\bsignedurl\b/i,
   /\bx-amz-signature\b/i,
   /[?&](token|signature|x-amz-signature)=/i,
   /\braw[_\s-]?prompt\b/i,
+  /\brawprompt\b/i,
   /\braw[_\s-]?response\b/i,
   /\bprovider[_\s-]?metadata\b/i,
   /\bprovider payload\b/i,
   /\braw[_\s-]?image\b/i,
   /\bimage[_\s-]?bytes\b/i,
+  /\bimagebytes\b/i,
   /\bdata:image\//i,
   /\bobject[_\s-]?key\b/i,
   /\buploads\/submissions\//i,
+  /\b(?:private|uploads|submissions|objects|media)\/[^\s]+/i,
   /\bphoto-submissions\b/i,
   /\bs3:\/\//i,
   /\bhttps?:\/\//i,
   /\btraceback\b/i,
+  /\b(?:127\.0\.0\.1|0\.0\.0\.0|localhost)(?::\d+)?\b/i,
+  /\b[a-z0-9.-]+\.internal\b/i,
   /\blocalhost:\d+\b/i,
   /\b(rabbitmq|minio|postgres|celery|classifier)([-.:/]\w+|\b)/i,
 ];
@@ -181,6 +191,12 @@ export function formatDisplayDateTime(value: unknown) {
 }
 
 export function isUnsafeDisplayValue(value: unknown) {
+  return (
+    containsUnsafePrivateValue(value) || containsForbiddenClassificationCopy(value)
+  );
+}
+
+export function containsUnsafePrivateValue(value: unknown) {
   if (typeof value !== "string") {
     return false;
   }
@@ -190,9 +206,30 @@ export function isUnsafeDisplayValue(value: unknown) {
     return false;
   }
 
-  return [...UNSAFE_VALUE_PATTERNS, ...FORBIDDEN_TRAIT_PATTERNS].some((pattern) =>
-    pattern.test(candidate),
-  );
+  return PRIVATE_OR_INTERNAL_VALUE_PATTERNS.some((pattern) => pattern.test(candidate));
+}
+
+export function containsForbiddenClassificationCopy(value: unknown) {
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const candidate = value.trim();
+  if (!candidate) {
+    return false;
+  }
+
+  return FORBIDDEN_TRAIT_PATTERNS.some((pattern) => pattern.test(candidate));
+}
+
+export function safeUserSubmittedText(value: unknown, fallback = "Unavailable") {
+  if (typeof value !== "string" || !value.trim()) {
+    return fallback;
+  }
+
+  const candidate = value.trim();
+
+  return containsUnsafePrivateValue(candidate) ? fallback : candidate;
 }
 
 export function safeClassificationReasons(reasons: unknown) {
@@ -218,7 +255,7 @@ export function safeErrorMessage(
   }
 
   if (isUnsafeDisplayValue(message)) {
-    return ERROR_COPY.unknown;
+    return ERROR_COPY[scope];
   }
 
   return message;
@@ -226,4 +263,12 @@ export function safeErrorMessage(
 
 export function defaultErrorMessage(scope: NormalizedErrorScope) {
   return ERROR_COPY[scope];
+}
+
+export function safeDocumentTitle(title: unknown) {
+  if (typeof title !== "string" || !title.trim() || isUnsafeDisplayValue(title)) {
+    return APP_NAME;
+  }
+
+  return `${title.trim()} | ${APP_NAME}`;
 }

@@ -1,8 +1,17 @@
 import type { createApiClient } from "@/lib/api-client";
 import { isApiError } from "@/lib/api-client";
-import type { RawSubmission, SubmissionDetail } from "@/lib/models";
+import type {
+  PaginatedSubmissionList,
+  RawSubmission,
+  SubmissionDetail,
+  SubmissionStatus,
+} from "@/lib/models";
+import { isSubmissionStatus } from "@/lib/models";
 import type { ValidSubmissionDraft } from "@/features/submissions/validation";
-import { toSubmissionDetail } from "@/features/submissions/transformers";
+import {
+  toPaginatedSubmissionList,
+  toSubmissionDetail,
+} from "@/features/submissions/transformers";
 
 type ApiClient = ReturnType<typeof createApiClient>;
 
@@ -44,6 +53,48 @@ export async function createSubmission(
   const response = await apiClient.post<RawSubmission>("/submissions/", formData);
 
   return toSubmissionDetail(response, new Date().toISOString());
+}
+
+export type ListSubmissionsOptions = {
+  page?: number;
+  status?: SubmissionStatus | null;
+};
+
+function normalizePage(page: unknown) {
+  return typeof page === "number" && Number.isInteger(page) && page > 0 ? page : 1;
+}
+
+function buildSubmissionListPath(page: number, status: SubmissionStatus | null) {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  if (status) {
+    params.set("status", status);
+  }
+
+  return `/submissions/?${params.toString()}`;
+}
+
+export async function listSubmissions(
+  apiClient: ApiClient,
+  options: ListSubmissionsOptions = {},
+): Promise<PaginatedSubmissionList> {
+  const page = normalizePage(options.page);
+  const status = isSubmissionStatus(options.status) ? options.status : null;
+  const response = await apiClient.get<unknown>(buildSubmissionListPath(page, status));
+
+  return toPaginatedSubmissionList(response, page, status);
+}
+
+export async function getSubmission(
+  apiClient: ApiClient,
+  id: string,
+  lastCheckedAt: string | null = null,
+): Promise<SubmissionDetail> {
+  const response = await apiClient.get<RawSubmission>(
+    `/submissions/${encodeURIComponent(id)}/`,
+  );
+
+  return toSubmissionDetail(response, lastCheckedAt);
 }
 
 export function isUncertainSubmissionOutcome(error: unknown) {

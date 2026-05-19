@@ -6,6 +6,7 @@ import {
   getDecisionLabel,
   getStatusDisplay,
   isUnsafeDisplayValue,
+  safeDocumentTitle,
   safeClassificationReasons,
   safeErrorMessage,
 } from "@/lib/safe-display";
@@ -87,11 +88,51 @@ describe("safe display helpers", () => {
     ).toEqual(["Review details are unavailable."]);
   });
 
+  it("rejects forbidden person-trait wording in classification copy", () => {
+    expect(
+      safeClassificationReasons([
+        "This user looks competent",
+        "The model inferred religion",
+        "The photo proves suitability of a person",
+      ]),
+    ).toEqual(["Review details are unavailable."]);
+  });
+
+  it("suppresses unsafe values embedded inside otherwise allowlisted reasons", () => {
+    expect(
+      safeClassificationReasons([
+        "Required metadata was incomplete",
+        "Review passed with apiKey sk-private",
+        "See signedURL https://storage.internal/private?X-Amz-Signature=secret",
+        "rawPrompt: classify this person",
+        "imageBytes: /9j/private",
+      ]),
+    ).toEqual(["Required metadata was incomplete"]);
+  });
+
   it("normalizes unsafe backend error detail to safe copy", () => {
     expect(
       safeErrorMessage(
         "Traceback leaked token=abc and uploads/submissions/private.jpg",
       ),
     ).toBe("Something went wrong. Try again later.");
+  });
+
+  it("keeps unsafe backend details out of scoped error copy and document titles", () => {
+    expect(
+      safeErrorMessage(
+        "Alex_Morgan_profile.jpg is at uploads/submissions/private/profile.jpg",
+        "not_found",
+      ),
+    ).toBe("The requested item could not be found.");
+
+    expect(safeDocumentTitle("Submission detail")).toBe(
+      "Submission detail | Photo Classification Platform",
+    );
+    expect(
+      safeDocumentTitle(
+        "Alex_Morgan_profile.jpg signedURL https://storage.internal/private",
+      ),
+    ).toBe("Photo Classification Platform");
   });
 });

@@ -136,11 +136,13 @@ export type SubmissionDetail = SubmissionSummary & {
 
 export type PaginatedSubmissionList = {
   count: number;
-  next: string | null;
-  previous: string | null;
   results: SubmissionSummary[];
   page: number;
   statusFilter: SubmissionStatus | null;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  nextPage: number | null;
+  previousPage: number | null;
 };
 
 export type ValidationIssue = {

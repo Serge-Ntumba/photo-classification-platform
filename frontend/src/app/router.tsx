@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
-import { AppShell } from "@/components/layout/AppShell";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { useSession } from "@/app/providers";
 import { SessionBoundary } from "@/features/auth/components/SessionBoundary";
@@ -9,6 +8,8 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { WorkspacePage } from "@/features/auth/pages/WorkspacePage";
 import { CreateSubmissionPage } from "@/features/submissions/pages/CreateSubmissionPage";
+import { SubmissionDetailPage } from "@/features/submissions/pages/SubmissionDetailPage";
+import { SubmissionsListPage } from "@/features/submissions/pages/SubmissionsListPage";
 import { NotFoundPage } from "@/routes/NotFoundPage";
 
 function PublicHome() {
@@ -28,21 +29,6 @@ function PublicHome() {
         classification status.
       </p>
     </PublicLayout>
-  );
-}
-
-function ProtectedPlaceholder({ title }: { title: string }) {
-  const { session, signOut } = useSession();
-
-  return (
-    <AppShell user={session.user} onSignOut={signOut}>
-      <section>
-        <h1 className="text-2xl font-semibold tracking-normal">{title}</h1>
-        <p className="mt-3 max-w-prose text-sm leading-6 text-muted-foreground">
-          This protected route is reserved for the corresponding workflow phase.
-        </p>
-      </section>
-    </AppShell>
   );
 }
 
@@ -86,7 +72,7 @@ export function AppRoutes() {
         path="/app/submissions"
         element={
           <ProtectedRoute>
-            <ProtectedPlaceholder title="Submissions" />
+            <SubmissionsListPage />
           </ProtectedRoute>
         }
       />
@@ -94,7 +80,7 @@ export function AppRoutes() {
         path="/app/submissions/:id"
         element={
           <ProtectedRoute>
-            <ProtectedPlaceholder title="Submission detail" />
+            <SubmissionDetailPage />
           </ProtectedRoute>
         }
       />

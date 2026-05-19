@@ -19,7 +19,7 @@ import {
   type SubmissionFormValues,
 } from "@/features/submissions/validation";
 import type { SubmissionDetail } from "@/lib/models";
-import { getStatusDisplay } from "@/lib/safe-display";
+import { getStatusDisplay, safeDocumentTitle } from "@/lib/safe-display";
 
 const initialValues: SubmissionFormValues = {
   name: "",
@@ -60,6 +60,10 @@ export function CreateSubmissionPage() {
     description: useRef<HTMLTextAreaElement>(null),
   };
   const photoContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.title = safeDocumentTitle("Create submission");
+  }, []);
 
   const firstErrorField = useMemo(() => getFirstSubmissionErrorField(errors), [errors]);
 
