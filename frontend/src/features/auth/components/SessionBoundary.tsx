@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 
 import { useApiClient, useSession } from "@/app/providers";
 import { LoadingState, SafeErrorState } from "@/components/layout/feedback";
@@ -8,15 +9,19 @@ import { defaultErrorMessage } from "@/lib/safe-display";
 
 export function SessionBoundary({ children }: { children: ReactNode }) {
   const apiClient = useApiClient();
+  const location = useLocation();
+  const routeKey = `${location.pathname}${location.search}`;
   const { expireSession, session, updateAuthenticatedUser } = useSession();
   const [checkResult, setCheckResult] = useState<{
     accessToken: string | null;
     errorMessage: string | null;
     isReady: boolean;
+    routeKey: string | null;
   }>({
     accessToken: null,
     errorMessage: null,
     isReady: false,
+    routeKey: null,
   });
 
   useEffect(() => {
@@ -36,6 +41,7 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
           accessToken: session.accessToken,
           errorMessage: null,
           isReady: true,
+          routeKey,
         });
       })
       .catch((error: unknown) => {
@@ -52,6 +58,7 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
             ? error.message
             : defaultErrorMessage("unknown"),
           isReady: true,
+          routeKey,
         });
       });
 
@@ -61,6 +68,7 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
   }, [
     apiClient,
     expireSession,
+    routeKey,
     session.accessToken,
     session.status,
     updateAuthenticatedUser,
@@ -70,7 +78,11 @@ export function SessionBoundary({ children }: { children: ReactNode }) {
     return null;
   }
 
-  if (!checkResult.isReady || checkResult.accessToken !== session.accessToken) {
+  if (
+    !checkResult.isReady ||
+    checkResult.accessToken !== session.accessToken ||
+    checkResult.routeKey !== routeKey
+  ) {
     return <LoadingState label="Checking session" />;
   }
 

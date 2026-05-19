@@ -25,11 +25,29 @@ describe("configuration resolvers", () => {
     ).toBe("/admin/");
   });
 
+  it("resolves Django Admin as same-origin when the absolute API origin matches", () => {
+    expect(
+      resolveDjangoAdminUrl({
+        apiBaseUrl: "https://platform.example/api",
+        currentOrigin: "https://platform.example",
+      }),
+    ).toBe("/admin/");
+  });
+
   it("resolves Django Admin to the backend public origin for local Vite dev", () => {
     expect(
       resolveDjangoAdminUrl({
         apiBaseUrl: "/api",
         backendPublicOrigin: "http://localhost",
+        currentOrigin: "http://localhost:5173",
+      }),
+    ).toBe("http://localhost/admin/");
+  });
+
+  it("resolves Django Admin from an absolute backend API origin during local Vite dev", () => {
+    expect(
+      resolveDjangoAdminUrl({
+        apiBaseUrl: "http://localhost/api",
         currentOrigin: "http://localhost:5173",
       }),
     ).toBe("http://localhost/admin/");

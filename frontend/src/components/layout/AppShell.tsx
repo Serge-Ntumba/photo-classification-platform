@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { StaffReviewEntry } from "@/features/auth/components/StaffReviewEntry";
 import type { AuthenticatedUser } from "@/lib/models";
 
 type NavigationItem = {
@@ -56,7 +57,7 @@ export function AppShell({
             ) : null}
           </div>
           <nav
-            className="flex flex-wrap items-center gap-2"
+            className="flex min-w-0 flex-wrap items-center gap-2"
             aria-label="Workspace navigation"
           >
             {navigation.map((item) => (
@@ -64,6 +65,7 @@ export function AppShell({
                 <Link to={item.href}>{item.label}</Link>
               </Button>
             ))}
+            {user?.isStaff ? <StaffReviewEntry /> : null}
             {onSignOut ? (
               <Button
                 type="button"

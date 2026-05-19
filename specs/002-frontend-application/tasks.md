@@ -207,15 +207,15 @@
 
 ### Tests for User Story 6
 
-- [ ] T083 [P] [US6] Add staff review entry tests for staff visibility, non-staff absence, separate-admin-login copy, and no custom admin UI in `frontend/src/features/auth/staff-review.test.tsx`; Depends: T028, T038; Validate: `cd frontend && npm run test -- src/features/auth/staff-review.test.tsx`
-- [ ] T084 [P] [US6] Add admin URL resolver tests for same-origin and local Vite separate-origin cases in `frontend/src/lib/config.test.ts`; Depends: T011-T028; Validate: `cd frontend && npm run test -- src/lib/config.test.ts`
+- [X] T083 [P] [US6] Add staff review entry tests for staff visibility, non-staff absence, separate-admin-login copy, and no custom admin UI in `frontend/src/features/auth/staff-review.test.tsx`; Depends: T028, T038; Validate: `cd frontend && npm run test -- src/features/auth/staff-review.test.tsx`
+- [X] T084 [P] [US6] Add admin URL resolver tests for same-origin and local Vite separate-origin cases in `frontend/src/lib/config.test.ts`; Depends: T011-T028; Validate: `cd frontend && npm run test -- src/lib/config.test.ts`
 
 ### Implementation for User Story 6
 
-- [ ] T085 [P] [US6] Implement the staff review entry component with resolved public Django Admin URL and separate-login copy in `frontend/src/features/auth/components/StaffReviewEntry.tsx`; Depends: T083, T084, T019; Validate: `cd frontend && npm run test -- src/features/auth/staff-review.test.tsx src/lib/config.test.ts`
-- [ ] T086 [US6] Integrate the staff review entry into authenticated navigation only when `user.is_staff` is true in `frontend/src/components/layout/AppShell.tsx`; Depends: T083, T085; Validate: `cd frontend && npm run test -- src/features/auth/staff-review.test.tsx`
-- [ ] T087 [US6] Recheck staff status on protected navigation and update staff entry visibility after `/api/auth/me/` changes in `frontend/src/features/auth/components/SessionBoundary.tsx`; Depends: T037, T083, T085; Validate: `cd frontend && npm run test -- src/features/auth/auth-flow.test.tsx src/features/auth/staff-review.test.tsx`
-- [ ] T088 [US6] Add a neutral fallback for direct `/admin` frontend route attempts without building an admin panel in `frontend/src/routes/NotFoundPage.tsx`; Depends: T083, T027; Validate: `cd frontend && npm run test -- src/features/auth/staff-review.test.tsx src/app/app.test.tsx`
+- [X] T085 [P] [US6] Implement the staff review entry component with resolved public Django Admin URL and separate-login copy in `frontend/src/features/auth/components/StaffReviewEntry.tsx`; Depends: T083, T084, T019; Validate: `cd frontend && npm run test -- src/features/auth/staff-review.test.tsx src/lib/config.test.ts`
+- [X] T086 [US6] Integrate the staff review entry into authenticated navigation only when `user.is_staff` is true in `frontend/src/components/layout/AppShell.tsx`; Depends: T083, T085; Validate: `cd frontend && npm run test -- src/features/auth/staff-review.test.tsx`
+- [X] T087 [US6] Recheck staff status on protected navigation and update staff entry visibility after `/api/auth/me/` changes in `frontend/src/features/auth/components/SessionBoundary.tsx`; Depends: T037, T083, T085; Validate: `cd frontend && npm run test -- src/features/auth/auth-flow.test.tsx src/features/auth/staff-review.test.tsx`
+- [X] T088 [US6] Add a neutral fallback for direct `/admin` frontend route attempts without building an admin panel in `frontend/src/routes/NotFoundPage.tsx`; Depends: T083, T027; Validate: `cd frontend && npm run test -- src/features/auth/staff-review.test.tsx src/app/app.test.tsx`
 
 **Checkpoint**: User Story 6 is functional and independently testable with mocked staff and non-staff users.
 
