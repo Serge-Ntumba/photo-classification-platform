@@ -35,5 +35,29 @@
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+    overflow-x: hidden;
+  }
+
+  html {
+    overflow-x: hidden;
+  }
+
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .content-safe-wrap {
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .core-content {
+    @apply mx-auto w-full max-w-6xl min-w-0 px-4 py-8 sm:px-6;
+  }
+
+  .responsive-action-row {
+    @apply flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center;
   }
 }

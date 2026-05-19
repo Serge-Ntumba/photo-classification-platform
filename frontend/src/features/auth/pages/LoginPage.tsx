@@ -108,7 +108,7 @@ export function LoginPage() {
 
   return (
     <PublicLayout>
-      <h1 className="mt-3 max-w-2xl text-3xl font-semibold tracking-normal">
+      <h1 className="content-safe-wrap mt-3 max-w-2xl text-3xl font-semibold tracking-normal">
         Sign in to continue
       </h1>
       <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
@@ -116,7 +116,11 @@ export function LoginPage() {
         data.
       </p>
 
-      <form className="mt-8 max-w-md space-y-5" onSubmit={onSubmit} noValidate>
+      <form
+        className="mt-8 w-full max-w-md min-w-0 space-y-5"
+        onSubmit={onSubmit}
+        noValidate
+      >
         {registrationMessage ? (
           <div
             role="status"
@@ -189,7 +193,7 @@ export function LoginPage() {
           ) : null}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="responsive-action-row">
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Logging in" : "Log in"}
           </Button>

@@ -23,10 +23,10 @@ export function SubmissionListItem({ submission }: SubmissionListItemProps) {
   const classification = submission.classification;
 
   return (
-    <article className="rounded-md border border-border p-4">
+    <article className="min-w-0 rounded-md border border-border p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-2">
-          <h2 className="break-words text-base font-semibold tracking-normal">
+          <h2 className="content-safe-wrap text-base font-semibold tracking-normal">
             {safeUserSubmittedText(submission.name, "Submission")}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -34,7 +34,7 @@ export function SubmissionListItem({ submission }: SubmissionListItemProps) {
           </p>
           <StatusMessage tone={statusTone(submission.status)} label={status.label} />
         </div>
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
           <Link to={`/app/submissions/${encodeURIComponent(submission.id)}`}>
             Open details
           </Link>

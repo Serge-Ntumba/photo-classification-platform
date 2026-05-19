@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useApiClient, useSession } from "@/app/providers";
 import { AppShell } from "@/components/layout/AppShell";
-import { StatusMessage } from "@/components/layout/feedback";
+import { LiveRegion, StatusMessage } from "@/components/layout/feedback";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { PhotoSelector } from "@/features/submissions/components/PhotoSelector";
@@ -167,9 +167,11 @@ export function CreateSubmissionPage() {
 
   return (
     <AppShell user={session.user} onSignOut={handleSignOut}>
-      <section className="space-y-6">
+      <section className="min-w-0 space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-normal">Create submission</h1>
+          <h1 className="content-safe-wrap text-2xl font-semibold tracking-normal">
+            Create submission
+          </h1>
           <p className="mt-3 max-w-prose text-sm leading-6 text-muted-foreground">
             Add one photo and the required user-submitted metadata. Classification
             starts asynchronously after the platform accepts the submission.
@@ -184,13 +186,18 @@ export function CreateSubmissionPage() {
               {createdStatus ? (
                 <StatusMessage tone="info" label={createdStatus.label} />
               ) : null}
-              <div className="flex flex-wrap gap-3">
-                <Button asChild size="sm">
+              <div className="responsive-action-row">
+                <Button asChild size="sm" className="w-full sm:w-auto">
                   <Link to={`/app/submissions/${createdSubmission.id}`}>
                     Open created submission
                   </Link>
                 </Button>
-                <Button asChild size="sm" variant="outline">
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                >
                   <Link to="/app/submissions">View submissions</Link>
                 </Button>
               </div>
@@ -204,7 +211,12 @@ export function CreateSubmissionPage() {
             <AlertDescription>
               <p>{errors.form}</p>
               {errors.uncertainOutcome ? (
-                <Button asChild className="mt-3" size="sm" variant="outline">
+                <Button
+                  asChild
+                  className="mt-3 w-full sm:w-auto"
+                  size="sm"
+                  variant="outline"
+                >
                   <Link to="/app/submissions">Check submissions</Link>
                 </Button>
               ) : null}
@@ -220,7 +232,7 @@ export function CreateSubmissionPage() {
           </div>
         ) : null}
 
-        <form className="space-y-6" onSubmit={onSubmit} noValidate>
+        <form className="min-w-0 space-y-6" onSubmit={onSubmit} noValidate>
           <div ref={photoContainerRef}>
             <PhotoSelector
               key={clearPhotoSignal}
@@ -239,15 +251,30 @@ export function CreateSubmissionPage() {
             onChange={updateValue}
           />
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="responsive-action-row">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Submitting" : "Create submission"}
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link to="/app">Return to workspace</Link>
             </Button>
           </div>
         </form>
+        <LiveRegion
+          label="Submission form update"
+          politeness={errors.form || firstErrorField ? "assertive" : "polite"}
+          message={
+            isSubmitting
+              ? "Submitting submission"
+              : createdSubmission
+                ? "Submission creation completed."
+                : firstErrorField
+                  ? "Correct validation errors before submitting."
+                  : errors.form
+                    ? "Submission form error. Check the visible guidance."
+                    : ""
+          }
+        />
       </section>
     </AppShell>
   );

@@ -3,8 +3,11 @@ import { Link } from "react-router-dom";
 
 export function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-6 py-10">
+    <main
+      id="main-content"
+      className="min-h-screen min-w-0 bg-background text-foreground"
+    >
+      <section className="mx-auto flex min-h-screen w-full max-w-5xl min-w-0 flex-col justify-center px-4 py-10 sm:px-6">
         <p className="text-sm font-medium text-muted-foreground">
           Photo Classification Platform
         </p>

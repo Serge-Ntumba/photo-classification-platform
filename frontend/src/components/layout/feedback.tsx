@@ -32,6 +32,8 @@ export function LoadingState({ label = "Loading" }: { label?: string }) {
     <div
       role="status"
       aria-live="polite"
+      aria-atomic="true"
+      aria-busy="true"
       className="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border p-6 text-sm text-muted-foreground"
     >
       {label}
@@ -57,7 +59,12 @@ export function SafeErrorState({
   className,
 }: SafeErrorStateProps) {
   return (
-    <Alert variant="destructive" className={className}>
+    <Alert
+      variant="destructive"
+      className={className}
+      aria-live="assertive"
+      aria-atomic="true"
+    >
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{safeErrorMessage(message)}</AlertDescription>
     </Alert>
@@ -90,15 +97,22 @@ export function StatusMessage({
 export function LiveRegion({
   message,
   politeness = "polite",
+  label = "Status update",
 }: {
   message: string;
   politeness?: "polite" | "assertive";
+  label?: string;
 }) {
+  if (!message.trim()) {
+    return null;
+  }
+
   return (
     <div
-      role="status"
-      aria-label="Status update"
+      role={politeness === "assertive" ? "alert" : "status"}
+      aria-label={label}
       aria-live={politeness}
+      aria-atomic="true"
       className="sr-only"
     >
       {message}

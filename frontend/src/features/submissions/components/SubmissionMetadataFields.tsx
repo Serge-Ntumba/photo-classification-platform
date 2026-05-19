@@ -53,9 +53,9 @@ export function SubmissionMetadataFields({
   onChange,
 }: SubmissionMetadataFieldsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid min-w-0 gap-4 md:grid-cols-2">
       {inputFields.map(({ field, label, type = "text", maxLength }) => (
-        <div key={field} className="space-y-2">
+        <div key={field} className="min-w-0 space-y-2">
           <Label htmlFor={fieldId(field)}>{label}</Label>
           <Input
             id={fieldId(field)}
@@ -79,7 +79,7 @@ export function SubmissionMetadataFields({
         </div>
       ))}
 
-      <div className="space-y-2 md:col-span-2">
+      <div className="min-w-0 space-y-2 md:col-span-2">
         <Label htmlFor={fieldId("description")}>Description</Label>
         <Textarea
           id={fieldId("description")}

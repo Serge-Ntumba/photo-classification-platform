@@ -94,10 +94,10 @@ export function SubmissionDetailPage() {
     const checkedAt = lastCheckedAt;
 
     return (
-      <div className="space-y-6">
-        <section className="rounded-md border border-border p-4">
+      <div className="min-w-0 space-y-6">
+        <section className="min-w-0 rounded-md border border-border p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
+            <div className="min-w-0">
               <h2 className="text-base font-semibold tracking-normal">
                 Submission status
               </h2>
@@ -105,22 +105,22 @@ export function SubmissionDetailPage() {
             </div>
             <StatusMessage tone={statusTone(data.status)} label={status.label} />
           </div>
-          <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
-            <div>
+          <dl className="mt-4 grid min-w-0 gap-3 text-sm sm:grid-cols-3">
+            <div className="min-w-0">
               <dt className="font-medium">Created</dt>
-              <dd className="mt-1 text-muted-foreground">
+              <dd className="content-safe-wrap mt-1 text-muted-foreground">
                 {formatDisplayDateTime(data.createdAt)}
               </dd>
             </div>
-            <div>
+            <div className="min-w-0">
               <dt className="font-medium">Updated</dt>
-              <dd className="mt-1 text-muted-foreground">
+              <dd className="content-safe-wrap mt-1 text-muted-foreground">
                 {formatDisplayDateTime(data.updatedAt)}
               </dd>
             </div>
-            <div>
+            <div className="min-w-0">
               <dt className="font-medium">Last checked</dt>
-              <dd className="mt-1 text-muted-foreground">
+              <dd className="content-safe-wrap mt-1 text-muted-foreground">
                 {formatDisplayDateTime(checkedAt)}
               </dd>
             </div>
@@ -138,10 +138,10 @@ export function SubmissionDetailPage() {
 
   return (
     <AppShell user={session.user} onSignOut={handleSignOut}>
-      <section className="space-y-6">
+      <section className="min-w-0 space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-normal">
+          <div className="min-w-0">
+            <h1 className="content-safe-wrap text-2xl font-semibold tracking-normal">
               Submission detail
             </h1>
             <p className="mt-3 max-w-prose text-sm leading-6 text-muted-foreground">
@@ -149,8 +149,8 @@ export function SubmissionDetailPage() {
               classification summary.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild variant="outline">
+          <div className="responsive-action-row sm:justify-end">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link to="/app/submissions">Return to submissions</Link>
             </Button>
             <Button
@@ -158,6 +158,7 @@ export function SubmissionDetailPage() {
               onClick={() => void refresh("manual")}
               disabled={isLoading || isRefreshing}
               aria-label="Refresh status"
+              className="w-full sm:w-auto"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               {isRefreshing ? "Refreshing" : "Refresh status"}

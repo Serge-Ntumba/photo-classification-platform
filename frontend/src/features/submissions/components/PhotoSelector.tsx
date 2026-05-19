@@ -119,7 +119,7 @@ export function PhotoSelector({
   const displayError = error ?? internalError;
 
   return (
-    <section className="space-y-3 rounded-md border border-border p-4">
+    <section className="min-w-0 space-y-3 rounded-md border border-border p-4">
       <div className="space-y-2">
         <Label htmlFor="submission-photo">Photo</Label>
         <Input
@@ -132,7 +132,10 @@ export function PhotoSelector({
           disabled={disabled}
           onChange={handleFileChange}
         />
-        <p id="submission-photo-help" className="text-sm text-muted-foreground">
+        <p
+          id="submission-photo-help"
+          className="content-safe-wrap text-sm text-muted-foreground"
+        >
           JPEG, PNG, or WebP. Maximum 5 MB. Dimensions from 300x300 through 5000x5000
           pixels.
         </p>
@@ -170,6 +173,7 @@ export function PhotoSelector({
         type="button"
         variant="outline"
         size="sm"
+        className="w-full sm:w-auto"
         disabled={disabled}
         onClick={clearSelection}
       >

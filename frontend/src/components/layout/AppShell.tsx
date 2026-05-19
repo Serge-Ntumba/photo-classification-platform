@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, type ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -28,6 +28,13 @@ export function AppShell({
   navigation = defaultNavigation,
   onSignOut,
 }: AppShellProps) {
+  const location = useLocation();
+  const mainRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    mainRef.current?.focus({ preventScroll: true });
+  }, [location.pathname, location.search]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <a
@@ -58,14 +65,26 @@ export function AppShell({
               </Button>
             ))}
             {onSignOut ? (
-              <Button type="button" variant="outline" size="sm" onClick={onSignOut}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto"
+                onClick={onSignOut}
+              >
                 Sign out
               </Button>
             ) : null}
           </nav>
         </div>
       </header>
-      <main id="main-content" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+      <main
+        id="main-content"
+        ref={mainRef}
+        tabIndex={-1}
+        aria-label="Main content"
+        className="core-content focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+      >
         {children}
       </main>
       <Separator />
