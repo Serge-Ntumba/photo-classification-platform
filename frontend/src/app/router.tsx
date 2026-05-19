@@ -8,6 +8,7 @@ import { SessionBoundary } from "@/features/auth/components/SessionBoundary";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { WorkspacePage } from "@/features/auth/pages/WorkspacePage";
+import { CreateSubmissionPage } from "@/features/submissions/pages/CreateSubmissionPage";
 import { NotFoundPage } from "@/routes/NotFoundPage";
 
 function PublicHome() {
@@ -77,7 +78,7 @@ export function AppRoutes() {
         path="/app/submissions/new"
         element={
           <ProtectedRoute>
-            <ProtectedPlaceholder title="Create submission" />
+            <CreateSubmissionPage />
           </ProtectedRoute>
         }
       />

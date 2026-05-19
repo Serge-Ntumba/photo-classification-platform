@@ -51,6 +51,9 @@ export const handlers = [
     }),
   ),
   http.get(`${apiBaseUrl}/auth/me/`, () => HttpResponse.json(mockCurrentUser)),
+  http.post(`${apiBaseUrl}/submissions/`, () =>
+    HttpResponse.json(mockSubmission, { status: 201 }),
+  ),
   http.get(`${apiBaseUrl}/submissions/`, () =>
     HttpResponse.json({
       count: 1,
