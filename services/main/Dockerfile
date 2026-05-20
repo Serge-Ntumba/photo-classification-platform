@@ -22,6 +22,7 @@ RUN pip install --upgrade pip \
 COPY services/main ./services/main
 
 RUN ln -s services/main/manage.py manage.py
+RUN python manage.py collectstatic --noinput
 
 WORKDIR /app
 
