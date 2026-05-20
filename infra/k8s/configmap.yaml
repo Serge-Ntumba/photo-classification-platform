@@ -54,14 +54,62 @@ metadata:
   namespace: photo-classification
 data:
   default.conf: |
+    client_max_body_size 6m;
+
+    upstream django_app {
+      server web:8000;
+    }
+
     server {
       listen 80;
+      root /usr/share/nginx/html;
+      index index.html;
 
-      location / {
-        proxy_pass http://web:8000;
+      location = /health {
+        proxy_pass http://django_app;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Request-ID $request_id;
+      }
+
+      location ^~ /health/ {
+        proxy_pass http://django_app;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Request-ID $request_id;
+      }
+
+      location ^~ /api/docs/ {
+        proxy_pass http://django_app;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Request-ID $request_id;
+      }
+
+      location ^~ /api/ {
+        proxy_pass http://django_app;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Request-ID $request_id;
+      }
+
+      location = /admin {
+        return 301 /admin/;
+      }
+
+      location ^~ /admin/ {
+        proxy_pass http://django_app;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Request-ID $request_id;
+      }
+
+      location / {
+        try_files $uri $uri/ /index.html;
       }
     }

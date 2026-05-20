@@ -34,3 +34,10 @@
 - Validation passed after updating the spec to resolve the product critique.
 - Backend API/current-implementation references are limited to user-visible constraints, supported capabilities, assumptions, and out-of-scope boundaries.
 - The spec now explicitly covers registration-to-login behavior, expired sessions, protected deep links, upload limits, pagination, status refresh, safe display allowlists, object-key/original-filename exclusion, user-submitted metadata labeling, accessibility, and the separate existing admin review area.
+
+## Safety Smoke Checklist
+
+- [x] User-facing submission views exclude `object_key` and private object key values from backend photo fields.
+- [x] User-facing submission views exclude `original_filename` and uploaded filename values after submission creation.
+- [x] User-facing classification and error copy excludes signed URLs, tokens, credentials, raw prompts, raw image bytes, provider payloads, and internal endpoints.
+- [x] Classification copy uses submission-review language and excludes forbidden person-trait framing.

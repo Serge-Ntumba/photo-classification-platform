@@ -84,6 +84,13 @@ jobs:
           python-version: "3.12"
           cache: pip
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
       - name: Start MinIO service for CI
         run: |
           docker run -d --name ci-minio \
@@ -114,11 +121,43 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[main,classifier,dev]"
 
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browser
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
       - name: Lint
         run: ruff check .
 
       - name: Format check
         run: ruff format --check .
+
+      - name: Frontend typecheck
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Frontend lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Frontend format check
+        working-directory: frontend
+        run: npm run format:check
+
+      - name: Frontend unit and component tests
+        working-directory: frontend
+        run: npm run test -- --run
+
+      - name: Frontend production build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Frontend browser workflow smoke tests
+        working-directory: frontend
+        run: npm run e2e
 
       - name: Django migration check
         run: |
@@ -222,6 +261,9 @@ jobs:
 
       - name: Build classifier image
         run: docker build -t photo-classification-classifier:${{ github.sha }} -f services/classifier/Dockerfile .
+
+      - name: Build frontend static image
+        run: docker build -t photo-classification-frontend:${{ github.sha }} -f frontend/Dockerfile frontend
 
       - name: Docker Compose smoke coverage
         run: |

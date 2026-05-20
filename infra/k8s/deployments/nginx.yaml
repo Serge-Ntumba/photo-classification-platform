@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx:1.27-alpine
+          image: photo-classification-frontend:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 80

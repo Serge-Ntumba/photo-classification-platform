@@ -1,6 +1,9 @@
 services:
   nginx:
-    image: nginx:1.27-alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: photo_classification_platform-nginx:latest
     depends_on:
       - web
     ports:

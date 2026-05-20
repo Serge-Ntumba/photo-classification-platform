@@ -80,6 +80,14 @@ npm run build
 
 The production build should produce static assets that can be served by the platform public entry point while `/api/` and `/admin/` continue to route to Django.
 
+Production static image validation:
+
+```bash
+docker build -f frontend/Dockerfile frontend
+docker compose build nginx
+docker compose config
+```
+
 ## Planned Verification Commands
 
 ```bash
@@ -87,11 +95,26 @@ cd frontend
 npm run typecheck
 npm run lint
 npm run format:check
-npm run test
+npm run test -- --run
 npm run build
+npm run e2e
 ```
 
-Run browser workflow smoke checks with the test command selected during implementation; do not add a separate browser-test runner unless it is needed to cover the required mobile, desktop, and keyboard workflows.
+The implementation uses Vitest for unit/component tests and Playwright for
+browser workflow smoke checks. `npm run test -- --run` is the deterministic
+non-watch form used for local and CI verification.
+
+## Implementation-Specific Command Notes
+
+- `npm run e2e` starts the Vite dev server on `127.0.0.1:5173`; sandboxed
+  command runners may need permission to bind that localhost port.
+- `docker build -f frontend/Dockerfile frontend` and `docker compose build
+  nginx` require Docker daemon access.
+- `kubectl apply --dry-run=client -f infra/k8s/configmap.yaml` and
+  `kubectl apply --dry-run=client -f infra/k8s/deployments/nginx.yaml` require
+  a configured Kubernetes API for this local kubectl version. When no cluster is
+  configured, run `python scripts/validate_k8s_manifests.py` for the repository
+  exposure-boundary validation.
 
 Minimum coverage expectations for task generation:
 
