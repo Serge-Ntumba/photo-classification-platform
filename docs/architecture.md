@@ -43,44 +43,32 @@ This architecture makes the following assumptions:
 
 - The first version prioritizes a clear, testable, cloud-deployable architecture over advanced ML, custom admin UI, or complex distributed ownership.
 
-Architecture Diagram
+## Architecture Diagram
 
-```mermaid
-flowchart LR
-    User[Browser / Client\nUser UI + Admin UI] --> Nginx[Nginx\nReverse Proxy]
-
-    Nginx --> Django[Django + DRF Main Service\nAuth, Submissions, Admin, API Docs]
-
-    Django --> Postgres[(PostgreSQL\nUsers, Submissions, Results)]
-    Django --> ObjectStorage[(MinIO locally / S3 in production\nPrivate photo objects)]
-    Django --> RabbitMQ[(RabbitMQ\nClassification Jobs)]
-
-    RabbitMQ --> Worker[Celery Worker\nClassification Job Consumer]
-
-    Worker --> ObjectStorage
-    Worker --> Classifier[FastAPI Classification Service\n/classify + /health]
-    Worker --> Postgres
-
-    Admin[Admin User] --> Nginx
-    Nginx --> DjangoAdmin[Django Admin]
-    DjangoAdmin --> Django
-```
+The current system diagram is maintained as a standalone deliverable in
+[architecture-diagram.md](architecture-diagram.md). It reflects the implemented
+React + Nginx public entry point, Django application boundary, asynchronous
+RabbitMQ/Celery workflow, internal rule-based FastAPI classifier, PostgreSQL,
+and private object storage.
 
 ## Component Responsibilities
 
 ### Browser / Client
 
-The browser provides the user interface and admin interface entry point.
+The browser runs the React user frontend served by Nginx and reaches Django
+Admin through the same public application entry point for staff review.
 
 For this assessment, the admin interface is Django Admin rather than a custom admin frontend. This keeps the scope focused on backend architecture, data modeling, filtering, classification, and deployment.
 
 ### Nginx
 
-Nginx acts as the reverse proxy in front of the Django service.
+Nginx is the public web entry point. It serves the built React frontend and
+proxies backend routes to the Django service.
 
 Responsibilities:
 
-* Route HTTP requests to Django/DRF.
+* Serve the React single-page application.
+* Proxy `/api/`, `/admin/`, `/health`, and `/static/` routes to Django/DRF.
 * Provide a production-like entry point locally and in deployment.
 * Allow static/media routing configuration if needed.
 * Keep internal services such as PostgreSQL, RabbitMQ, MinIO, Celery, and the classifier private.
@@ -230,7 +218,7 @@ This avoids split ownership of the database and keeps migrations, indexing, and 
 The main communication paths are:
 
 1. Browser communicates with Nginx over HTTP/HTTPS.
-2. Nginx forwards application requests to Django/DRF.
+2. Nginx serves the React frontend and forwards backend routes to Django/DRF.
 3. Django reads and writes structured data in PostgreSQL.
 4. Django uploads photos to MinIO/S3-compatible object storage.
 5. Django publishes classification jobs to RabbitMQ.

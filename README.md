@@ -2,6 +2,11 @@
 
 Django/DRF owns the public API, authentication, submissions, object-storage orchestration, PostgreSQL writes, Django Admin, and Celery job publishing. FastAPI owns the internal stateless classifier. Classification is asynchronous through RabbitMQ/Celery and uses the credential-free rule-based classifier by default.
 
+Architecture:
+
+- Current system diagram: [docs/architecture-diagram.md](docs/architecture-diagram.md)
+- Architecture notes: [docs/architecture.md](docs/architecture.md)
+
 ## Local Development
 
 Prerequisites:
