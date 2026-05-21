@@ -2,6 +2,8 @@
 .github/
 .specify/
 .agents/
+specs/
+AGENTS.md
 .sixth/
 __pycache__/
 *.py[cod]

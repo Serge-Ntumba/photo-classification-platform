@@ -49,3 +49,9 @@ Thumbs.db
 .vscode/
 .idea/
 .manual-stage*/
+
+# Local SDD / agent workflow artifacts
+.agents/
+.specify/
+specs/
+AGENTS.md
